@@ -8,6 +8,10 @@ O sitema tem por objetivo principal cadastrar competidores/equipes e demais por 
 O usuario deverá ter controle e flexibildiades nos lançamentos dos dados, onde se cadastre, edite e eventualmente utilize o excluir / reset quando necessários. 
 O sistema deverá ser confiavel e auxiliar o usuario a minimizar erros. Trazendo um gestão confiavel e agil. 
 
+Imporante ressaltar que o projeto será totalmente hospedado dentro do ambiente GAS, incluindo a planilha google sheets que será nosso soft banco de dados. 
+O gas possui limitações quanto ao uso de outras tecnologias externas, sendo necessários cdn para uso de alguns. E o motor do GAS somente executa arquivos .gs, .html. 
+Não iremos usar o clasp neste projeto.
+
 
 🚀 Funcionalidades Desenvolvidas
 
