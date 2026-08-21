@@ -17,13 +17,13 @@ Não iremos usar o clasp neste projeto.
 
 1. Gestão e Inscrição de Equipes / Piquetes
 
-Formulário Completo: Cadastro da entidade/piquete, nome do Capataz responsável e lista de até 5 atletas titulares e reservas.
+Formulário Completo: Cadastro da entidade/piquete, capataz, contato e quantidade dinâmica de atletas titulares e reservas. Cada atleta pode ser vinculado às modalidades que disputará.
 
-Persistência de Dados: Armazenamento automático via localStorage no navegador.
+Persistência de Dados: Integração com Google Apps Script e Google Sheets, mantendo localStorage como apoio para execução local do frontend.
 
 Proteção contra Duplo Clique: Trava no botão de envio para evitar registros duplicados.
 
-Tabela Dinâmica: Visualização instantânea das equipes cadastradas com opção de remoção individual.
+Tabela Dinâmica: Visualização de entidade, capataz e contato, com edição e cancelamento lógico.
 
 2. Súmulas Oficiais das Modalidades (6 Oficializadas)
 
@@ -105,10 +105,8 @@ Tailwind CSS: Estilização moderna e utilitária via CDN.
 
 FontAwesome 6: Ícone temáticos para todas as modalidades e ações do sistema.
 
-Vanilla JavaScript (ES6+): Lógica sem dependências externas, responsável pelo cálculo matemático de pontos, manipulação do DOM e controle do localStorage.
+Vue 3 via CDN + JavaScript ES6+: Estado reativo, formulários, cálculos, integração `google.script.run` e persistência local de apoio, sem bundler.
 
-Proximos passos desenvolver regras de negocios. 
-criar tabelas/entidades
-Melhoriar <style>
-corrigir erros
-desenvolver backend e contratos e regras dos negocios e demais features necessarias. 
+Backend inicial implementado com contratos padronizados, UUID, datas ISO, locks, cancelamento lógico e abas separadas para entidades, atletas, vínculos de modalidades, súmulas e logs.
+
+Próximos passos: publicar em ambiente GAS de homologação, executar testes com a planilha real e concluir os ajustes finais de UX e regras de negócio.
