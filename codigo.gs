@@ -160,6 +160,25 @@ function setSumulaStatus(sumulaId, status) {
   });
 }
 
+/** Exclui fisicamente uma única súmula pelo UUID e preserva apenas auditoria mínima. */
+function deleteSumula(sumulaId) {
+  return executeApi_(function () {
+    if (!sumulaId) throw new Error('Identificador da súmula não informado.');
+    return withLock_(function () {
+      initializeDatabase_();
+      const eventId = getCurrentEventId_();
+      const sheet = getSpreadsheet_().getSheetByName('SUMULAS');
+      const rows = readObjects_('SUMULAS');
+      const index = rows.findIndex(function (row) { return row.id === sumulaId && row.evento_id === eventId; });
+      if (index < 0) throw new Error('Súmula não encontrada no evento atual.');
+      const row = rows[index];
+      appendLog_('SUMULAS', sumulaId, 'EXCLUIR_SUMULA', { modalidade_id: row.modalidade_id });
+      sheet.deleteRow(index + 2);
+      return { id: sumulaId, modalidadeId: row.modalidade_id, excluida: true };
+    });
+  });
+}
+
 function initializeDatabase_() {
   const spreadsheet = getSpreadsheet_();
   Object.keys(SAE_SCHEMA).forEach(function (name) {

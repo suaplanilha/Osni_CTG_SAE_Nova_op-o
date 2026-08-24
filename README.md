@@ -39,7 +39,7 @@ Totalização automática por atleta e Total Geral da Equipe.
 
 Bocha Campeira (Modalidade Trio)
 
-Marcação de pontos partida a partida (escala de 1 a 12 pontos).
+Marcação por 12 checkboxes com placar final automático e composição de 3 titulares mais 1 reserva.
 
 Identificação de cores de bochas por equipe.
 
@@ -67,7 +67,7 @@ Truco de Amostra (Modalidade Trio)
 
 Registro de pontuações de até 3 partidas por confronto.
 
-Soma de tentos marcados automatizada.
+Soma de tentos, placar e encerramento automatizados; duas vitórias seguidas geram a terceira partida em 30 × 0.
 
 Bloco de encerramento com dados do Trio Vencedor e Trio Perdedor.
 
@@ -75,7 +75,7 @@ Truco Cego (Modalidade Trio)
 
 Estrutura análoga à súmula de Truco de Amostra adaptada para as regras do Truco Cego.
 
-Controles de tentos por rodada e assinaturas dos capatazes e árbitros.
+Controles de até 24 tentos por partida; duas vitórias seguidas geram a terceira partida em 24 × 0.
 
 Bocha 48 (Modalidade Dupla)
 
@@ -83,7 +83,7 @@ Controle de arremessos divididos em duas séries (8 jogadas por atleta).
 
 Legenda guia de pontuações (Frente = 2, Esquerda = 4, Direita = 6, Atrás = 8, Bolim = 12).
 
-Cálculo automático por atleta, por dupla e comparativo do confronto.
+Cálculo automático por atleta e por dupla, com classificação da modalidade pela pontuação final.
 
 🛠️ Recursos de Interface e Usabilidade (UI/UX)
 
