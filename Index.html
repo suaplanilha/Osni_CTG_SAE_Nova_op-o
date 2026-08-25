@@ -1,1479 +1,321 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAE - Jogos Tradicionalista Gaúcho</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        gaucho: {
-                            red: '#BC2C2D',
-                            yellow: '#FDB813',
-                            green: '#008751',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
-    <style>
-        /* Custom styles for printable sumulas and UI elements */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
-        }
-
-        /* Modality dynamic background helpers */
-        .mod-tava { border-left-color: #6b7280; }
-        .mod-bocha-campeira { border-left-color: #ef4444; }
-        .mod-tetarfe { border-left-color: #eab308; }
-        .mod-truco-amostra { border-left-color: #22c55e; }
-        .mod-truco-cego { border-left-color: #3b82f6; }
-        .mod-bocha-48 { border-left-color: #6366f1; }
-
-        /* Súmula official print styling */
-        @media print {
-            .no-print { display: none !important; }
-            .print-area {
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                box-shadow: none !important;
-                background: white !important;
-            }
-            body { background: white !important; }
-        }
-
-        /* High touch readability inputs for sumulas */
-        .sumula-input {
-            width: 100%;
-            text-align: center;
-            border: 1px solid #d1d5db;
-            border-radius: 0.25rem;
-            padding: 0.25rem 0.1rem;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-        }
-        .sumula-input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-            background-color: #eff6ff;
-        }
-        
-        .sumula-table th, .sumula-table td {
-            border: 1px solid #374151;
-            padding: 4px;
-        }
-
-        /* Loader Animation */
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 3px solid #10b981;
-            width: 20px;
-            height: 20px;
-            -webkit-animation: spin 1s linear infinite;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07111f">
+  <meta name="color-scheme" content="dark">
+  <title>CTG Rodeio dos Palmares · SAE</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } } };
+  </script>
+  <style>
+    :root { --sae-bg:#07111f; --sae-panel:rgba(15,30,49,.72); --sae-line:rgba(148,163,184,.14); --sae-muted:#91a2b8; --sae-green:#34d399; }
+    * { scrollbar-width:thin; scrollbar-color:#334155 transparent; }
+    html { background:var(--sae-bg); }
+    body { margin:0; min-height:100vh; color:#e5edf7; background:
+      radial-gradient(circle at 10% 0%, rgba(16,185,129,.12), transparent 28rem),
+      radial-gradient(circle at 95% 10%, rgba(59,130,246,.1), transparent 30rem), var(--sae-bg); }
+    [v-cloak] { display:none; }
+    button, input, select, textarea { font:inherit; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline:2px solid #34d399; outline-offset:2px; }
+    .glass { background:var(--sae-panel); border:1px solid var(--sae-line); box-shadow:0 18px 48px rgba(0,0,0,.22); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
+    .glass-soft { background:rgba(15,30,49,.48); border:1px solid rgba(148,163,184,.11); backdrop-filter:blur(12px); }
+    .safe-bottom { padding-bottom:max(1rem, env(safe-area-inset-bottom)); }
+    .fade-enter-active,.fade-leave-active { transition:opacity .2s ease; }
+    .fade-enter-from,.fade-leave-to { opacity:0; }
+    .drawer-enter-active,.drawer-leave-active { transition:transform .25s ease,opacity .25s ease; }
+    .drawer-enter-from,.drawer-leave-to { transform:translateX(100%); opacity:0; }
+    .modal-enter-active,.modal-leave-active { transition:transform .2s ease,opacity .2s ease; }
+    .modal-enter-from,.modal-leave-to { transform:translateY(18px) scale(.98); opacity:0; }
+    .skeleton { position:relative; overflow:hidden; background:rgba(148,163,184,.08); }
+    .skeleton::after { content:""; position:absolute; inset:0; transform:translateX(-100%); background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent); animation:shimmer 1.35s infinite; }
+    @keyframes shimmer { to { transform:translateX(100%); } }
+    .google-loader { display:inline-flex; gap:4px; align-items:center; }
+    .google-loader i { width:6px; height:6px; border-radius:50%; animation:pulse 1s infinite ease-in-out; }
+    .google-loader i:nth-child(1){background:#4285f4}.google-loader i:nth-child(2){background:#ea4335;animation-delay:.12s}.google-loader i:nth-child(3){background:#fbbc05;animation-delay:.24s}.google-loader i:nth-child(4){background:#34a853;animation-delay:.36s}
+    @keyframes pulse { 0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-4px);opacity:1} }
+    @media (max-width:767px){ .responsive-table thead{display:none}.responsive-table,.responsive-table tbody,.responsive-table tr,.responsive-table td{display:block;width:100%}.responsive-table tr{padding:1rem}.responsive-table td{display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;border:0}.responsive-table td::before{content:attr(data-label);color:#91a2b8;font-size:.72rem;font-weight:700;text-transform:uppercase}.responsive-table td.actions{padding-top:.8rem;margin-top:.5rem;border-top:1px solid var(--sae-line)} }
+    .doc-table { width:100%; border-collapse:collapse; color:#111827; background:#fff; }
+    .doc-table th,.doc-table td { border:1px solid #334155; padding:.35rem; vertical-align:middle; }
+    .doc-input { width:100%; min-width:0; border:0; background:#fff; color:#111827; padding:.35rem; outline:none; }
+    .doc-input:focus { box-shadow:inset 0 0 0 2px #10b981; }
+    .doc-label { font-size:.7rem; font-weight:800; text-transform:uppercase; color:#334155; }
+    .truco-a4{width:100%;max-width:210mm;margin:0 auto;background:#fff;padding:5mm 6mm;color:#000;font-family:Arial,Helvetica,sans-serif}.truco-via{border:1.5px solid #000;padding:4px;break-inside:avoid}.truco-cut{margin:4mm 0;border-top:1.5px dashed #444;text-align:right;font-size:6px;color:#555}.truco-via-head{width:100%;border-collapse:collapse}.truco-via-head td{padding:1px 4px;font-size:8px;font-weight:700}.truco-title{text-align:center;font-size:8.5px;font-weight:700;line-height:1.2;text-transform:uppercase;margin:2px 0 4px}.truco-note{font-size:6.5px;font-style:italic;line-height:1.1;margin:2px 0 4px}.truco-table{width:100%;border-collapse:collapse;table-layout:fixed;text-align:center}.truco-table th,.truco-table td{border:1px solid #000;padding:3px 2px;font-size:7.5px}.truco-table th{background:#f5f5f5}.truco-name{width:28%;text-align:left!important}.truco-number{width:9%}.truco-score{width:12%}.truco-round{width:8%;font-weight:700}.truco-result{width:100%;border-collapse:collapse;margin-top:4px}.truco-result td{width:50%;border:1px solid #000;padding:4px;vertical-align:top;font-size:7.5px}.truco-result-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;margin-top:3px}.truco-signatures{width:100%;border-collapse:collapse;margin-top:3px}.truco-signatures td{width:33.333%;padding:2px 4px;text-align:center;vertical-align:bottom;font-size:6.5px}.truco-signature-line{border-top:1px solid #000;margin-top:14px;padding-top:2px;font-weight:700}.truco-a4 .doc-input{padding:1px 2px;font:inherit;color:#000}.truco-members{display:block;font-size:6.5px;font-weight:400;line-height:1.15;color:#333}.truco-result-name{min-height:24px;font-weight:700}.truco-local{margin:3px 0;font-size:7.5px}.truco-cut-label{position:relative;top:-5px;background:#fff;padding-left:4px}
+    @media print { html,body{margin:0!important;background:#fff!important;color:#111}.app-chrome,.no-print,.sumula-actions,.sumula-alerts{display:none!important}.glass{background:#fff;border:0;box-shadow:none}.sumula-document{width:100%!important;max-width:none!important;box-shadow:none!important;overflow:visible!important}.sumula-document>form{gap:.25rem!important;padding:.2rem!important}.sumula-document header{padding:.3rem!important}.doc-input{padding:.08rem!important}.doc-table{break-inside:avoid;font-size:8px!important}.doc-table th,.doc-table td{padding:.12rem!important}.print-tetarfe{font-size:7px!important;zoom:.48}.print-tava,.print-bocha-campeira,.print-bocha-48{font-size:8px!important;zoom:.68}.print-truco-amostra,.print-truco-cego{zoom:1!important}.print-truco-amostra>form,.print-truco-cego>form{padding:0!important}.print-truco-amostra>form>header,.print-truco-cego>form>header{display:none!important}.truco-a4{width:210mm!important;height:297mm!important;max-width:none!important;margin:0!important;padding:5mm 6mm!important;overflow:hidden!important}.truco-via{page-break-inside:avoid!important}.truco-a4 input,.truco-a4 textarea{overflow:hidden!important} }
+  </style>
 </head>
-<body class="h-screen flex flex-col md:flex-row overflow-hidden bg-gray-100">
-
-    <!-- SIDEBAR -->
-    <aside id="sidebar" class="w-full md:w-64 bg-slate-900 text-white flex-shrink-0 flex flex-col justify-between transition-all duration-300 z-30 fixed md:relative h-full transform -translate-x-full md:translate-x-0">
-        <div>
-            <!-- Sidebar Header / Logo -->
-            <div class="p-4 bg-slate-950 flex items-center justify-between border-b border-slate-800">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-green-600 via-yellow-500 to-red-600 flex items-center justify-center font-bold text-slate-900 shadow-md">
-                        <i class="fa-solid fa-trophy text-slate-900 text-lg"></i>
-                    </div>
-                    <div>
-                        <h1 class="font-extrabold text-base tracking-wide text-amber-400 leading-tight">SAE - JTG</h1>
-                        <p class="text-xs text-slate-400">Jogos Tradicionalistas</p>
-                    </div>
-                </div>
-                <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-white">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-            </div>
-
-            <!-- Navigation Links -->
-            <nav class="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-140px)]">
-                <!-- Inscrição Header -->
-                <div class="px-3 pt-3 pb-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                    Gestão
-                </div>
-                
-                <button onclick="navTo('inscricao')" id="btn-nav-inscricao" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white active">
-                    <i class="fa-solid fa-address-card text-emerald-400 w-5"></i>
-                    <span>Inscrição de Equipe</span>
-                </button>
-
-                <!-- Modalidades Section Header -->
-                <div class="px-3 pt-4 pb-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                    <span>Modalidades</span>
-                    <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400">6 Oficial</span>
-                </div>
-
-                <!-- Tava (bg-gray) -->
-                <button onclick="navTo('tava')" id="btn-nav-tava" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition-all">
-                    <div class="flex items-center gap-3">
-                        <span class="w-3 h-3 rounded-full bg-gray-500 shadow-sm"></span>
-                        <span>Tava</span>
-                    </div>
-                    <span class="text-xs bg-gray-700 text-gray-200 px-2 py-0.5 rounded-full font-semibold">GRI</span>
-                </button>
-
-                <!-- Bocha Campeira (bg-red) -->
-                <button onclick="navTo('bocha-campeira')" id="btn-nav-bocha-campeira" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition-all">
-                    <div class="flex items-center gap-3">
-                        <span class="w-3 h-3 rounded-full bg-red-600 shadow-sm"></span>
-                        <span>Bocha Campeira</span>
-                    </div>
-                    <span class="text-xs bg-red-950 text-red-300 border border-red-800 px-2 py-0.5 rounded-full font-semibold">RED</span>
-                </button>
-
-                <!-- Tetarfe (bg-yellow) -->
-                <button onclick="navTo('tetarfe')" id="btn-nav-tetarfe" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition-all">
-                    <div class="flex items-center gap-3">
-                        <span class="w-3 h-3 rounded-full bg-yellow-500 shadow-sm"></span>
-                        <span>Tetarfe</span>
-                    </div>
-                    <span class="text-xs bg-yellow-950 text-yellow-300 border border-yellow-800 px-2 py-0.5 rounded-full font-semibold">YEL</span>
-                </button>
-
-                <!-- Truco de Amostra (bg-green) -->
-                <button onclick="navTo('truco-amostra')" id="btn-nav-truco-amostra" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition-all">
-                    <div class="flex items-center gap-3">
-                        <span class="w-3 h-3 rounded-full bg-green-500 shadow-sm"></span>
-                        <span>Truco de Amostra</span>
-                    </div>
-                    <span class="text-xs bg-green-950 text-green-300 border border-green-800 px-2 py-0.5 rounded-full font-semibold">GRE</span>
-                </button>
-
-                <!-- Truco Cego (bg-blue) -->
-                <button onclick="navTo('truco-cego')" id="btn-nav-truco-cego" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition-all">
-                    <div class="flex items-center gap-3">
-                        <span class="w-3 h-3 rounded-full bg-blue-500 shadow-sm"></span>
-                        <span>Truco Cego</span>
-                    </div>
-                    <span class="text-xs bg-blue-950 text-blue-300 border border-blue-800 px-2 py-0.5 rounded-full font-semibold">BLU</span>
-                </button>
-
-                <!-- Bocha 48 (bg-indigo) -->
-                <button onclick="navTo('bocha-48')" id="btn-nav-bocha-48" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition-all">
-                    <div class="flex items-center gap-3">
-                        <span class="w-3 h-3 rounded-full bg-indigo-500 shadow-sm"></span>
-                        <span>Bocha 48</span>
-                    </div>
-                    <span class="text-xs bg-indigo-950 text-indigo-300 border border-indigo-800 px-2 py-0.5 rounded-full font-semibold">IND</span>
-                </button>
-
-            </nav>
-        </div>
-
-        <!-- Sidebar Footer -->
-        <div class="p-3 bg-slate-950 border-t border-slate-800 text-xs text-slate-400 flex items-center justify-between">
-            <span class="flex items-center gap-1.5"><i class="fa-solid fa-flag text-red-500"></i> CBTG / MTG</span>
-            <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300 font-mono">v1.0 MVP</span>
-        </div>
+<body>
+<div id="app" v-cloak>
+  <div class="min-h-screen md:flex">
+    <transition name="fade"><div v-if="sidebarOpen" class="fixed inset-0 z-40 bg-slate-950/75 md:hidden" @click="sidebarOpen=false"></div></transition>
+    <aside :class="['app-chrome fixed inset-y-0 left-0 z-50 flex w-[286px] flex-col border-r border-white/10 bg-slate-950/90 backdrop-blur-2xl transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0', sidebarOpen?'translate-x-0':'-translate-x-full']">
+      <div class="flex items-center gap-3 border-b border-white/10 px-5 py-5">
+        <div class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-emerald-400 via-amber-300 to-red-500 text-slate-950 shadow-lg shadow-emerald-500/10"><i class="fa-solid fa-trophy"></i></div>
+        <div class="min-w-0"><p class="truncate text-sm font-extrabold text-white">CTG Rodeio dos Palmares</p><p class="text-[11px] font-semibold uppercase tracking-[.2em] text-emerald-400">Sistema SAE</p></div>
+        <button class="ml-auto rounded-lg p-2 text-slate-400 md:hidden" aria-label="Fechar menu" @click="sidebarOpen=false"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <nav class="flex-1 overflow-y-auto px-3 py-5">
+        <template v-for="group in navigation" :key="group.label">
+          <p class="mb-2 mt-5 px-3 text-[10px] font-extrabold uppercase tracking-[.2em] text-slate-500 first:mt-0">{{ group.label }}</p>
+          <button v-for="item in group.items" :key="item.id" @click="navigate(item.id)" :class="['mb-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition', currentView===item.id?'bg-emerald-400/12 text-emerald-300 ring-1 ring-emerald-400/20':'text-slate-400 hover:bg-white/5 hover:text-white']">
+            <span class="grid h-8 w-8 place-items-center rounded-lg bg-white/5"><i :class="item.icon"></i></span><span>{{ item.label }}</span><span v-if="item.count!==undefined" class="ml-auto rounded-full bg-white/5 px-2 py-0.5 text-[10px]">{{ item.count }}</span>
+          </button>
+        </template>
+      </nav>
+      <div class="border-t border-white/10 p-4"><div class="rounded-xl bg-white/[.035] p-3"><div class="flex items-center gap-2 text-xs font-bold text-slate-300"><span class="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399]"></span>Evento atual</div><p class="mt-1 truncate text-xs text-slate-500">Jogos Tradicionalistas</p></div></div>
     </aside>
 
-    <!-- Overlay for mobile drawer -->
-    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-20 hidden md:hidden"></div>
-
-    <!-- MAIN CONTAINER -->
-    <div class="flex-1 flex flex-col h-full overflow-hidden">
-
-        <!-- TOPBAR -->
-        <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm no-print z-10">
-            <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="md:hidden text-gray-600 hover:text-gray-900 focus:outline-none p-1">
-                    <i class="fa-solid fa-bars text-xl"></i>
-                </button>
-                <div class="flex items-center gap-2">
-                    <span id="top-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800 text-white uppercase tracking-wider">
-                        Sistema SAE
-                    </span>
-                    <h2 id="current-title" class="text-lg font-bold text-gray-800 hidden sm:block">
-                        Inscrição de Entidade / Piquete
-                    </h2>
-                </div>
-            </div>
-
-            <!-- Right Controls -->
-            <div class="flex items-center gap-3">
-                <button onclick="window.print()" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-md border border-gray-300 transition-colors flex items-center gap-1.5">
-                    <i class="fa-solid fa-print text-gray-500"></i>
-                    <span>Imprimir Súmula</span>
-                </button>
-                <div class="text-xs text-right hidden sm:block border-l border-gray-200 pl-3">
-                    <div class="font-bold text-gray-700">CTG Rodeio dos Palmares</div>
-                    <div class="text-gray-400">Secretaria de Esportes</div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Notification Toast Toast -->
-        <div id="toast" class="fixed top-4 right-4 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 pointer-events-none">
-            <div id="toast-bg" class="bg-slate-900 text-white px-4 py-3 rounded-lg shadow-xl flex items-center gap-3 border border-slate-700">
-                <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
-                <div>
-                    <div id="toast-title" class="font-bold text-sm">Operação realizada</div>
-                    <div id="toast-message" class="text-xs text-gray-300">Dados salvos com sucesso!</div>
-                </div>
-            </div>
+    <section class="min-w-0 flex-1">
+      <header class="app-chrome sticky top-0 z-30 border-b border-white/10 bg-[#07111f]/80 px-4 py-3 backdrop-blur-xl sm:px-7">
+        <div class="mx-auto flex max-w-[1500px] items-center gap-3">
+          <button class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-slate-300 md:hidden" aria-label="Abrir menu" @click="sidebarOpen=true"><i class="fa-solid fa-bars"></i></button>
+          <div class="min-w-0"><p class="text-[10px] font-bold uppercase tracking-[.18em] text-emerald-400">CTG Rodeio dos Palmares</p><h1 class="truncate text-base font-extrabold text-white sm:text-lg">{{ pageTitle }}</h1></div>
+          <div class="ml-auto flex items-center gap-2"><button class="hidden rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-white/10 sm:flex" @click="loadingDemo"><i class="fa-solid fa-arrows-rotate mr-2"></i>Atualizar</button><button class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-slate-300" aria-label="Notificações"><i class="fa-regular fa-bell"></i></button><div class="grid h-10 w-10 place-items-center rounded-xl bg-emerald-400 font-black text-slate-950">A</div></div>
         </div>
+      </header>
 
-        <!-- MAIN CONTENT AREA -->
-        <main class="flex-1 overflow-y-auto p-3 sm:p-6 bg-gray-100">
+      <main class="mx-auto max-w-[1500px] p-4 sm:p-7">
+        <section v-if="currentView==='dashboard'">
+          <div class="glass relative overflow-hidden rounded-3xl p-6 sm:p-8"><div class="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-emerald-400/10 blur-3xl"></div><div class="relative max-w-3xl"><span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-emerald-300"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>Evento em preparação</span><h2 class="mt-5 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">Gestão simples para resultados confiáveis.</h2><p class="mt-3 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base">Cadastre participantes, organize as disputas e acompanhe o desempenho do evento em um só lugar.</p><div class="mt-6 flex flex-wrap gap-3"><button class="rounded-xl bg-emerald-400 px-4 py-2.5 text-sm font-extrabold text-slate-950 shadow-lg shadow-emerald-500/15 hover:bg-emerald-300" @click="openRegistration()"><i class="fa-solid fa-plus mr-2"></i>Novo piquete</button><button class="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-bold text-white hover:bg-white/10" @click="navigate('modalidades')">Abrir modalidades</button></div></div></div>
+          <div class="mt-5 grid grid-cols-2 gap-3 xl:grid-cols-4">
+            <article v-for="card in metricCards" :key="card.label" class="glass rounded-2xl p-4 sm:p-5"><template v-if="isLoading"><div class="skeleton h-10 w-10 rounded-xl"></div><div class="skeleton mt-5 h-7 w-16 rounded"></div><div class="skeleton mt-2 h-3 w-24 rounded"></div></template><template v-else><div :class="['grid h-10 w-10 place-items-center rounded-xl',card.tint]"><i :class="card.icon"></i></div><p class="mt-5 text-2xl font-extrabold text-white">{{ card.value }}</p><p class="mt-1 text-xs font-semibold text-slate-500">{{ card.label }}</p></template></article>
+          </div>
+          <div class="mt-5 grid gap-5 xl:grid-cols-[1.35fr_.65fr]">
+            <article class="glass rounded-2xl p-5"><div class="flex items-center justify-between"><div><h3 class="font-extrabold text-white">Atividade recente</h3><p class="mt-1 text-xs text-slate-500">Movimentações deste evento</p></div><button class="text-xs font-bold text-emerald-400" @click="navigate('inscricoes')">Ver inscrições</button></div><div class="mt-5 grid min-h-48 place-items-center rounded-2xl border border-dashed border-white/10 bg-white/[.02] text-center"><div><div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white/5 text-slate-500"><i class="fa-solid fa-clock-rotate-left"></i></div><p class="mt-3 text-sm font-bold text-slate-300">Nenhuma atividade registrada</p><p class="mt-1 text-xs text-slate-500">Os novos lançamentos aparecerão aqui.</p></div></div></article>
+            <article class="glass rounded-2xl p-5"><h3 class="font-extrabold text-white">Acesso rápido</h3><div class="mt-4 grid gap-2 sm:grid-cols-2"><button v-for="action in quickActions" :key="action.label" class="flex w-full items-center gap-3 rounded-xl border border-white/[.06] bg-white/[.03] p-3 text-left transition hover:bg-white/[.07]" @click="action.run()"><span :class="['grid h-9 w-9 place-items-center rounded-lg',action.tint]"><i :class="action.icon"></i></span><span class="text-sm font-bold text-slate-200">{{ action.label }}</span><i class="fa-solid fa-chevron-right ml-auto text-[10px] text-slate-600"></i></button></div></article>
+          </div>
+        </section>
 
-            <!-- 1. FORMULÁRIO DE INSCRIÇÃO -->
-            <section id="sec-inscricao" class="view-section max-w-4xl mx-auto space-y-6">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="p-4 sm:p-6 bg-slate-900 text-white flex justify-between items-center border-b border-slate-800">
-                        <div>
-                            <h2 class="text-xl font-bold flex items-center gap-2">
-                                <i class="fa-solid fa-file-pen text-amber-400"></i>
-                                Form. de Inscrição da Entidade / Piquete
-                            </h2>
-                            <p class="text-xs text-slate-400 mt-1">Cadastre novas equipes e atletas para povoar os confrontos das modalidades.</p>
-                        </div>
-                        <span class="bg-emerald-500/20 text-emerald-400 text-xs px-3 py-1 rounded-full border border-emerald-500/30 font-semibold">Ativo</span>
-                    </div>
+        <section v-else-if="currentView==='inscricoes'" class="space-y-5">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p class="text-xs font-bold uppercase tracking-widest text-emerald-400">Cadastros</p><h2 class="mt-1 text-2xl font-extrabold text-white">Inscrições</h2><p class="mt-1 text-sm text-slate-500">Cadastre a entidade, o capataz e seus integrantes em um único fluxo.</p></div><button class="rounded-xl bg-emerald-400 px-4 py-2.5 text-sm font-extrabold text-slate-950" @click="openRegistration()"><i class="fa-solid fa-plus mr-2"></i>Nova inscrição</button></div>
+          <data-list :rows="piquetes" type="piquetes" @edit="editItem" @remove="askRemove"></data-list>
+        </section>
 
-                    <form id="form-inscricao" onsubmit="salvarInscricao(event)" class="p-4 sm:p-6 space-y-6">
-                        <!-- Entidade / Piquete Dados -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                                    Entidade / Piquete <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="piquete_nome" required placeholder="Ex: CTG Lanceiros do Sul / Piquete Chama Crioula" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm">
-                            </div>
+        <section v-else-if="currentView==='modalidades'" class="space-y-5"><div><p class="text-xs font-bold uppercase tracking-widest text-emerald-400">Disputas</p><h2 class="mt-1 text-2xl font-extrabold text-white">Modalidades e súmulas</h2><p class="mt-1 text-sm text-slate-500">Todas as modalidades permanecem livres para lançamento.</p></div><div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3"><article v-for="mod in modalidades" :key="mod.id" class="glass group rounded-2xl p-5 transition hover:-translate-y-0.5"><div class="flex items-start"><div :class="['grid h-11 w-11 place-items-center rounded-xl',mod.tint]"><i :class="mod.icon"></i></div><span class="ml-auto rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-bold text-slate-500">{{ mod.registros }} lançamentos</span></div><h3 class="mt-5 font-extrabold text-white">{{ mod.nome }}</h3><p class="mt-1 text-xs text-slate-500">{{ mod.formato }}</p><div class="mt-5 flex gap-2"><button class="flex-1 rounded-xl bg-white/5 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-white/10" @click="openRanking(mod)">Ver ranking</button><button class="rounded-xl px-3 py-2 text-xs font-extrabold text-slate-950" :class="mod.button" @click="openSumula(mod)"><i class="fa-solid fa-plus mr-1"></i>Súmula</button></div></article></div><article class="glass overflow-hidden rounded-2xl"><div class="flex flex-col gap-2 border-b border-white/10 p-4 sm:flex-row sm:items-center sm:justify-between"><div><h3 class="font-extrabold text-white">Súmulas lançadas</h3><p class="mt-1 text-xs text-slate-500">Editar preserva o lançamento; cancelar remove dos rankings sem apagar histórico.</p></div><span class="rounded-full bg-white/5 px-3 py-1 text-[10px] font-bold text-slate-500">{{ sumulaListRows.length }} registros</span></div><div class="overflow-x-auto"><table class="w-full min-w-[960px] text-left text-sm"><thead class="bg-white/[.03] text-[10px] uppercase tracking-wider text-slate-500"><tr><th class="px-4 py-3">Data</th><th class="px-4 py-3">Modalidade</th><th class="px-4 py-3">Participantes</th><th class="px-4 py-3 text-right">Total</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Alertas</th><th class="px-4 py-3 text-right">Ações</th></tr></thead><tbody class="divide-y divide-white/[.06]"><tr v-for="row in sumulaListRows" :key="row.id" :class="row.status==='CANCELADO'?'opacity-55':'hover:bg-white/[.025]'"><td class="px-4 py-3 text-slate-400">{{ row.data }}</td><td class="px-4 py-3 font-bold text-white">{{ row.modalidade }}</td><td class="px-4 py-3 text-slate-300">{{ row.participantes }}</td><td class="px-4 py-3 text-right font-black text-emerald-300">{{ row.total }}</td><td class="px-4 py-3"><span :class="row.status==='CANCELADO'?'bg-red-400/10 text-red-300':row.status==='COM_ALERTA'?'bg-amber-400/10 text-amber-300':'bg-emerald-400/10 text-emerald-300'" class="rounded-full px-2 py-1 text-[10px] font-black">{{ row.status }}</span></td><td class="px-4 py-3 text-xs text-slate-500">{{ row.alertas }}</td><td class="px-4 py-3"><div class="flex justify-end gap-1"><button class="grid h-9 w-9 place-items-center rounded-lg bg-white/5 text-slate-300 hover:text-emerald-300" title="Editar" @click="editSumula(row.raw)"><i class="fa-solid fa-pen text-xs"></i></button><button :class="row.status==='CANCELADO'?'text-emerald-300 hover:bg-emerald-400/10':'text-red-300 hover:bg-red-400/10'" class="grid h-9 w-9 place-items-center rounded-lg bg-white/5" :title="row.status==='CANCELADO'?'Restaurar':'Cancelar'" @click="toggleSumulaStatus(row.raw)"><i :class="row.status==='CANCELADO'?'fa-solid fa-rotate-left':'fa-solid fa-ban'" class="text-xs"></i></button></div></td></tr><tr v-if="!sumulaListRows.length"><td colspan="7" class="px-4 py-10 text-center text-slate-500">Nenhuma súmula lançada ainda.</td></tr></tbody></table></div></article></section>
 
-                            <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                                    Nome do Capataz <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="capataz_nome" required placeholder="Responsável pelo piquete" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm">
-                            </div>
-                        </div>
+        <section v-else-if="currentView==='rankingModalidade'" class="space-y-5">
+          <div><p class="text-xs font-bold uppercase tracking-widest text-emerald-400">Homologação</p><h2 class="mt-1 text-2xl font-extrabold text-white">Ranking por modalidade</h2><p class="mt-1 text-sm text-slate-500">Classificação consolidada por entidade, ignorando lançamentos cancelados.</p></div>
+          <div class="flex gap-2 overflow-x-auto pb-1" aria-label="Filtrar ranking por modalidade"><button v-for="mod in modalidades" :key="mod.id" type="button" :class="['shrink-0 rounded-xl border px-4 py-2.5 text-xs font-extrabold transition',selectedRankingModality===mod.id?`${mod.button} border-transparent text-slate-950 shadow-lg`:'border-white/10 bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white']" @click="selectedRankingModality=mod.id"><i :class="mod.icon" class="mr-2"></i>{{ mod.nome }}</button></div>
+          <div class="glass overflow-hidden rounded-2xl"><div class="flex items-center justify-between border-b border-white/10 px-4 py-3"><div><p class="text-sm font-extrabold text-white">{{ selectedRankingModalityName }}</p><p class="mt-0.5 text-[11px] text-slate-500">{{ rankingRuleDescription }}</p></div><span class="rounded-full bg-white/5 px-3 py-1 text-[10px] font-bold text-slate-400">{{ rankingModalidadeRows.length }} entidades</span></div><div class="overflow-x-auto"><table class="w-full min-w-[820px] text-left text-sm"><thead class="bg-white/[.03] text-[10px] uppercase tracking-wider text-slate-500"><tr><th class="px-4 py-3 text-center">Posição</th><th class="px-4 py-3">Entidade</th><th class="px-4 py-3 text-right">Partidas disputadas</th><th class="px-4 py-3 text-right">Vitórias</th><th class="px-4 py-3 text-right">Tentos (Pontos)</th><th class="px-4 py-3">Status</th><th class="px-4 py-3 text-right">Ações</th></tr></thead><tbody class="divide-y divide-white/[.06]"><tr v-for="row in rankingModalidadeRows" :key="row.id" class="hover:bg-white/[.025]"><td class="px-4 py-3 text-center"><span :class="row.posicao===1?'bg-amber-300 text-amber-950':row.posicao===2?'bg-slate-300 text-slate-900':row.posicao===3?'bg-orange-400 text-orange-950':'bg-white/5 text-slate-400'" class="inline-grid h-8 min-w-8 place-items-center rounded-full px-2 text-xs font-black">{{ row.posicao }}º</span></td><td class="px-4 py-3 font-extrabold text-white">{{ row.entidade }}</td><td class="px-4 py-3 text-right text-slate-300">{{ row.partidasDisputadas }}</td><td class="px-4 py-3 text-right font-bold text-slate-200">{{ row.vitorias }}</td><td class="px-4 py-3 text-right font-black text-emerald-300">{{ row.pontos }}</td><td class="px-4 py-3"><span :class="row.status==='FINALIZADO'?'bg-emerald-400/10 text-emerald-300':'bg-amber-400/10 text-amber-300'" class="rounded-full px-2 py-1 text-[10px] font-black">{{ row.status }}</span></td><td class="px-4 py-3 text-right"><button class="grid h-9 w-9 place-items-center rounded-lg bg-red-400/[.08] text-red-300 hover:bg-red-400/15" title="Gerenciar súmulas" @click="openRankingDetails(row)"><i class="fa-solid fa-trash text-xs"></i></button></td></tr><tr v-if="!rankingModalidadeRows.length"><td colspan="7" class="px-4 py-10 text-center text-slate-500">Nenhuma súmula válida lançada para esta modalidade.</td></tr></tbody></table></div></div>
+        </section>
 
-                        <hr class="border-gray-200">
+        <section v-else-if="currentView==='rankingGeral'" class="space-y-5"><div><p class="text-xs font-bold uppercase tracking-widest text-emerald-400">Pontuação geral 10 a 3 · participação 2</p><h2 class="mt-1 text-2xl font-extrabold text-white">Ranking geral das entidades</h2><p class="mt-1 text-sm text-slate-500">Pontuação por colocação: 10/9/8/7/6/5/4/3 e 2 pontos do 9º lugar em diante.</p></div><div class="grid gap-3"><article v-for="(row,index) in rankingGeralRows" :key="row.entidade" class="glass flex flex-col gap-3 rounded-2xl p-4 sm:flex-row sm:items-center"><div class="grid h-11 w-11 place-items-center rounded-xl bg-emerald-400/10 text-lg font-black text-emerald-300">{{ index+1 }}º</div><div class="min-w-0 flex-1"><h3 class="truncate font-extrabold text-white">{{ row.entidade }}</h3><p class="text-xs text-slate-500">{{ row.modalidades }} modalidades válidas · {{ row.primeiros }} primeiros · {{ row.segundos }} segundos · {{ row.terceiros }} terceiros</p></div><div class="text-right"><p class="text-2xl font-black text-emerald-300">{{ row.pontosGerais }}</p><p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">pontos gerais</p></div></article><div v-if="!rankingGeralRows.length" class="glass rounded-2xl p-10 text-center text-slate-500">Nenhuma colocação disponível para ranking geral.</div></div></section>
 
-                        <!-- Integrantes / Atletas -->
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
-                                    <i class="fa-solid fa-users text-slate-600"></i>
-                                    Integrantes / Atletas
-                                </h3>
-                                <span class="text-xs text-gray-500">Informe até 5 atletas titulares/reservas</span>
-                            </div>
+        <section v-else class="glass grid min-h-[60vh] place-items-center rounded-3xl p-8 text-center"><div><div class="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-emerald-400/10 text-2xl text-emerald-400"><i class="fa-solid fa-layer-group"></i></div><h2 class="mt-5 text-xl font-extrabold text-white">Área preparada para evolução</h2><p class="mx-auto mt-2 max-w-md text-sm text-slate-500">A fundação visual e reativa está pronta. Este módulo será conectado nas próximas tasks aprovadas.</p><button class="mt-5 rounded-xl bg-white/5 px-4 py-2 text-sm font-bold text-white" @click="navigate('dashboard')">Voltar ao dashboard</button></div></section>
+      </main>
+    </section>
+  </div>
 
-                            <div class="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Nome completo 1 (Capitão / Titular)</label>
-                                    <input type="text" id="atleta_1" required placeholder="Nome completo do atleta 1" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-emerald-500">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Nome completo 2</label>
-                                    <input type="text" id="atleta_2" required placeholder="Nome completo do atleta 2" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-emerald-500">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Nome completo 3</label>
-                                    <input type="text" id="atleta_3" placeholder="Nome completo do atleta 3" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-emerald-500">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Nome completo 4</label>
-                                    <input type="text" id="atleta_4" placeholder="Nome completo do atleta 4" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-emerald-500">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Nome completo 5</label>
-                                    <input type="text" id="atleta_5" placeholder="Nome completo do atleta 5" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-emerald-500">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="flex items-center justify-end gap-3 pt-2">
-                            <button type="reset" class="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-100 transition-colors">
-                                Limpar
-                            </button>
-                            <button type="submit" id="btn-save-inscricao" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-sm font-bold rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2">
-                                <span id="btn-save-inscricao-spinner" class="loader hidden"></span>
-                                <i class="fa-solid fa-floppy-disk"></i>
-                                <span>Salvar Inscrição</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Lista de Inscrições Recentes -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                    <h3 class="text-base font-bold text-gray-800 mb-3 flex items-center justify-between">
-                        <span>Piquetes Cadastrados</span>
-                        <span id="count-piquetes" class="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-bold">0 Registros</span>
-                    </h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm text-gray-600">
-                            <thead class="bg-gray-50 text-xs uppercase font-bold text-gray-700 border-b border-gray-200">
-                                <tr>
-                                    <th class="p-3">Entidade/Piquete</th>
-                                    <th class="p-3">Capataz</th>
-                                    <th class="p-3">Atletas</th>
-                                    <th class="p-3 text-right">Ação</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbl-piquetes-body" class="divide-y divide-gray-200">
-                                <tr>
-                                    <td colspan="4" class="text-center py-6 text-gray-400">Nenhum piquete cadastrado ainda.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 2. SÚMULA TAVA (bg-gray) -->
-            <section id="sec-tava" class="view-section hidden max-w-5xl mx-auto">
-                <div class="bg-white rounded-xl shadow-md border-t-8 border-gray-600 overflow-hidden print-area">
-                    <!-- CBTG Header -->
-                    <div class="p-4 bg-gray-100 border-b border-gray-300 text-center relative">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2 text-left">
-                                <div class="w-12 h-12 bg-gray-200 rounded-full border border-gray-400 flex items-center justify-center font-bold text-xs text-gray-700">
-                                    CTG
-                                </div>
-                                <div>
-                                    <h2 class="font-extrabold text-base text-gray-900 uppercase tracking-tight">Jogos Tradicionalista Gaúcho</h2>
-                                    <p class="text-xs text-gray-600 font-semibold">CTG Rodeio dos Palmares</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <span class="bg-gray-800 text-white text-sm px-3 py-1 rounded font-black tracking-wider uppercase">Súmula Tava</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <form onsubmit="salvarSumula('Tava', event)" class="p-4 sm:p-6 space-y-4">
-                        <!-- Head info -->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase">Equipe / Piquete:</label>
-                                <input type="text" required class="sumula-input text-left font-bold bg-white" placeholder="Nome da Equipe">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase">Fase / Chave:</label>
-                                <input type="text" class="sumula-input text-left bg-white" placeholder="Ex: Classificatória / Final">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 uppercase">Data / Horário:</label>
-                                <input type="datetime-local" class="sumula-input bg-white">
-                            </div>
-                        </div>
-
-                        <!-- Table Tava -->
-                        <div class="overflow-x-auto">
-                            <table class="w-full sumula-table border-collapse text-xs text-gray-800">
-                                <thead>
-                                    <tr class="bg-gray-200 text-gray-900 uppercase">
-                                        <th class="w-8 text-center">Nº</th>
-                                        <th class="w-48 text-left">Atletas da Equipe</th>
-                                        <th colspan="5" class="text-center bg-gray-300 font-bold">1ª Etapa (Arremessos 1 a 5)</th>
-                                        <th class="w-4 bg-gray-700"></th>
-                                        <th colspan="5" class="text-center bg-gray-300 font-bold">2ª Etapa (Arremessos 6 a 10)</th>
-                                        <th class="w-24 text-center bg-gray-800 text-white font-black">TOTAL PONTOS</th>
-                                    </tr>
-                                    <tr class="bg-gray-100 text-center font-bold">
-                                        <td></td>
-                                        <td>Nome Completo</td>
-                                        <td>1</td><td>2</td><td>3</td><td>4</td><td>5</td>
-                                        <td class="bg-gray-700"></td>
-                                        <td>6</td><td>7</td><td>8</td><td>9</td><td>10</td>
-                                        <td>PTS</td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- 4 Athletes Rows -->
-                                    <script>
-                                        for(let i=1; i<=4; i++){
-                                            document.write(`
-                                                <tr class="hover:bg-gray-50">
-                                                    <td class="text-center font-bold">${i}</td>
-                                                    <td><input type="text" placeholder="Atleta ${i}" class="sumula-input text-left font-medium"></td>
-                                                    ${[1,2,3,4,5].map(n => `<td><input type="number" min="-2" max="2" onchange="calcTavaTotal(this)" class="sumula-input tava-p1-${i}"></td>`).join('')}
-                                                    <td class="bg-gray-700"></td>
-                                                    ${[6,7,8,9,10].map(n => `<td><input type="number" min="-2" max="2" onchange="calcTavaTotal(this)" class="sumula-input tava-p2-${i}"></td>`).join('')}
-                                                    <td class="text-center font-black bg-gray-100"><span id="tava-tot-${i}" class="text-sm font-extrabold text-gray-900">0</span></td>
-                                                </tr>
-                                            `);
-                                        }
-                                    </script>
-                                    <!-- Anotações Possíveis & Total Geral -->
-                                    <tr class="bg-gray-200 font-bold">
-                                        <td colspan="2" class="text-right pr-2">Anotações Possíveis:</td>
-                                        <td class="text-center text-emerald-700">2</td>
-                                        <td class="text-center text-blue-700">1</td>
-                                        <td class="text-center">0</td>
-                                        <td class="text-center text-orange-700">-1</td>
-                                        <td class="text-center text-red-700">-2</td>
-                                        <td class="bg-gray-700"></td>
-                                        <td colspan="5" class="text-right pr-2 uppercase font-black text-sm">Total Geral da Equipe:</td>
-                                        <td class="bg-gray-900 text-white text-center text-base font-black"><span id="tava-total-geral">0</span></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Signatures -->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 text-center text-xs text-gray-700">
-                            <div class="border-t border-gray-400 pt-1">
-                                <p class="font-bold">Árbitro do Jogo</p>
-                                <input type="text" placeholder="Nome / Rubrica" class="sumula-input border-0 text-center mt-1">
-                            </div>
-                            <div class="border-t border-gray-400 pt-1">
-                                <p class="font-bold">Capitão da Equipe</p>
-                                <input type="text" placeholder="Nome / Rubrica" class="sumula-input border-0 text-center mt-1">
-                            </div>
-                            <div class="border-t border-gray-400 pt-1">
-                                <p class="font-bold">Diretor de Esportes</p>
-                                <input type="text" placeholder="Nome / Rubrica" class="sumula-input border-0 text-center mt-1">
-                            </div>
-                        </div>
-
-                        <div class="flex justify-end pt-4 no-print">
-                            <button type="submit" class="px-6 py-2.5 bg-gray-700 hover:bg-gray-800 text-white font-bold rounded-lg shadow transition-all flex items-center gap-2">
-                                <i class="fa-solid fa-floppy-disk"></i> Salvar Súmula Tava
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </section>
-
-            <!-- 3. SÚMULA BOCHA CAMPEIRA (bg-red) -->
-            <section id="sec-bocha-campeira" class="view-section hidden max-w-5xl mx-auto">
-                <div class="bg-white rounded-xl shadow-md border-t-8 border-red-600 overflow-hidden print-area">
-                    <!-- Header -->
-                    <div class="p-4 bg-red-50 border-b border-red-200 text-center">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2 text-left">
-                                <div class="w-12 h-12 bg-red-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                                    CBTG
-                                </div>
-                                <div>
-                                    <h2 class="font-black text-sm sm:text-base text-red-900 uppercase">CONFEDERAÇÃO BRASILEIRA DA TRADIÇÃO GAÚCHA</h2>
-                                    <p class="text-xs text-red-700 font-bold uppercase">JOGOS TRADICIONALISTAS - BOCHA CAMPEIRA</p>
-                                </div>
-                            </div>
-                            <span class="bg-red-600 text-white text-xs px-3 py-1 rounded font-black tracking-wider uppercase">MODALIDADE TRIO</span>
-                        </div>
-                    </div>
-
-                    <form onsubmit="salvarSumula('Bocha Campeira', event)" class="p-4 sm:p-6 space-y-4">
-                        <!-- Top details -->
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                            <div>
-                                <label class="font-bold text-gray-700 uppercase">Fase:</label>
-                                <input type="text" placeholder="Ex: Eliminatória" class="sumula-input">
-                            </div>
-                            <div>
-                                <label class="font-bold text-gray-700 uppercase">Cancha:</label>
-                                <input type="text" placeholder="Nº Cancha" class="sumula-input">
-                            </div>
-                            <div>
-                                <label class="font-bold text-gray-700 uppercase">Início do Jogo:</label>
-                                <input type="time" class="sumula-input">
-                            </div>
-                            <div>
-                                <label class="font-bold text-gray-700 uppercase">Final do Jogo:</label>
-                                <input type="time" class="sumula-input">
-                            </div>
-                        </div>
-
-                        <!-- Main Trio Match Table -->
-                        <div class="overflow-x-auto">
-                            <table class="w-full sumula-table text-xs">
-                                <thead>
-                                    <tr class="bg-red-800 text-white">
-                                        <th colspan="12" class="text-center font-bold py-1">MTG / FEDERAÇÃO (EQUIPE A)</th>
-                                        <th class="w-12 bg-black text-white">VS</th>
-                                        <th colspan="12" class="text-center font-bold py-1">MTG / FEDERAÇÃO (EQUIPE B)</th>
-                                    </tr>
-                                    <tr class="bg-red-100 text-red-900 font-bold text-center">
-                                        <td colspan="12"><input type="text" placeholder="Nome Equipe A" class="sumula-input font-extrabold text-red-900 bg-white"></td>
-                                        <td class="bg-gray-200">PLACAR</td>
-                                        <td colspan="12"><input type="text" placeholder="Nome Equipe B" class="sumula-input font-extrabold text-red-900 bg-white"></td>
-                                    </tr>
-                                    <!-- Points scale 1 to 12 -->
-                                    <tr class="bg-gray-200 text-center font-bold">
-                                        ${[1,2,3,4,5,6,7,8,9,10,11,12].map(n=>`<td class="w-6">${n}</td>`).join('')}
-                                        <td class="bg-gray-400 font-black">X</td>
-                                        ${[1,2,3,4,5,6,7,8,9,10,11,12].map(n=>`<td class="w-6">${n}</td>`).join('')}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="bg-white">
-                                        <!-- Checkbox scoring inputs or points for Equipe A -->
-                                        ${[1,2,3,4,5,6,7,8,9,10,11,12].map(n=>`<td class="text-center"><input type="checkbox" class="w-4 h-4 accent-red-600"></td>`).join('')}
-                                        <td class="bg-red-900 text-white font-black text-center text-sm"><input type="number" id="bocha-placar-a" min="0" max="12" value="0" class="w-10 text-center text-black font-bold"></td>
-                                        ${[1,2,3,4,5,6,7,8,9,10,11,12].map(n=>`<td class="text-center"><input type="checkbox" class="w-4 h-4 accent-red-600"></td>`).join('')}
-                                    </tr>
-                                    <!-- Colors -->
-                                    <tr class="bg-gray-50 text-xs font-bold">
-                                        <td colspan="12" class="text-center">COR DA BOCHA: <input type="text" placeholder="Ex: Vermelha" class="sumula-input w-32 inline-block"></td>
-                                        <td class="bg-gray-300"></td>
-                                        <td colspan="12" class="text-center">COR DA BOCHA: <input type="text" placeholder="Ex: Azul" class="sumula-input w-32 inline-block"></td>
-                                    </tr>
-                                    <!-- Athletes list -->
-                                    <tr class="bg-gray-100 font-bold text-center">
-                                        <td colspan="8">Nome Completo do Atleta</td>
-                                        <td colspan="4">Assinatura</td>
-                                        <td class="bg-gray-300">TRIO</td>
-                                        <td colspan="8">Nome Completo do Atleta</td>
-                                        <td colspan="4">Assinatura</td>
-                                    </tr>
-                                    <script>
-                                        for(let i=1; i<=3; i++){
-                                            document.write(`
-                                                <tr>
-                                                    <td colspan="8"><input type="text" placeholder="Atleta ${i} Equipe A" class="sumula-input text-left"></td>
-                                                    <td colspan="4"><input type="text" class="sumula-input"></td>
-                                                    <td class="bg-gray-200 text-center font-bold">${i}</td>
-                                                    <td colspan="8"><input type="text" placeholder="Atleta ${i} Equipe B" class="sumula-input text-left"></td>
-                                                    <td colspan="4"><input type="text" class="sumula-input"></td>
-                                                </tr>
-                                            `);
-                                        }
-                                    </script>
-                                    <!-- Substituição -->
-                                    <tr class="bg-red-50 font-bold text-xs">
-                                        <td colspan="12" class="p-2">
-                                            SUBSTITUIÇÃO EQUIPE A:<br>
-                                            ENTROU: <input type="text" class="sumula-input w-40 inline-block">
-                                            SAIU: <input type="text" class="sumula-input w-40 inline-block">
-                                        </td>
-                                        <td class="bg-gray-300">SUBST</td>
-                                        <td colspan="12" class="p-2">
-                                            SUBSTITUIÇÃO EQUIPE B:<br>
-                                            ENTROU: <input type="text" class="sumula-input w-40 inline-block">
-                                            SAIU: <input type="text" class="sumula-input w-40 inline-block">
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Observações / Arbitragem -->
-                        <div class="bg-gray-50 p-3 rounded border border-gray-300 text-xs space-y-2">
-                            <label class="font-bold text-gray-800">OBS.: AS ANOTAÇÕES E/OU ALTERAÇÕES SERÃO REGISTRADAS ABAIXO, PELO ÁRBITRO:</label>
-                            <textarea rows="2" class="w-full p-2 border border-gray-300 rounded text-xs" placeholder="Anotações da arbitragem..."></textarea>
-                        </div>
-
-                        <!-- Bottom Signatures -->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 text-xs text-gray-800">
-                            <div>
-                                <label class="font-bold block">Árbitro do Jogo:</label>
-                                <input type="text" placeholder="Nome do Árbitro" class="sumula-input text-left mb-1">
-                                <input type="text" placeholder="Assinatura" class="sumula-input text-left">
-                            </div>
-                            <div>
-                                <label class="font-bold block">Mesário:</label>
-                                <input type="text" placeholder="Nome do Mesário" class="sumula-input text-left mb-1">
-                                <input type="text" placeholder="Assinatura" class="sumula-input text-left">
-                            </div>
-                            <div>
-                                <label class="font-bold block">Representantes das Equipes:</label>
-                                <input type="text" placeholder="Rep. Equipe A" class="sumula-input text-left mb-1">
-                                <input type="text" placeholder="Rep. Equipe B" class="sumula-input text-left">
-                            </div>
-                        </div>
-
-                        <div class="flex justify-end pt-4 no-print">
-                            <button type="submit" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow transition-all flex items-center gap-2">
-                                <i class="fa-solid fa-floppy-disk"></i> Salvar Súmula Bocha Campeira
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </section>
-
-            <!-- 4. SÚMULA TETARFE (bg-yellow) -->
-            <section id="sec-tetarfe" class="view-section hidden max-w-5xl mx-auto">
-                <div class="bg-white rounded-xl shadow-md border-t-8 border-yellow-500 overflow-hidden print-area">
-                    <!-- CBTG Header -->
-                    <div class="p-4 bg-yellow-50 border-b border-yellow-200 text-center">
-                        <h2 class="font-black text-sm sm:text-base text-yellow-950 uppercase">CONFEDERAÇÃO BRASILEIRA DA TRADIÇÃO GAÚCHA - CBTG</h2>
-                        <p class="text-xs font-bold text-yellow-800">DEPARTAMENTO DE ESPORTES - JOGOS TRADICIONALISTAS</p>
-                        <h3 class="text-sm font-black text-slate-900 underline mt-1 uppercase">SÚMULA DO JOGO DE TETARFE (TEjo – Tava – ARgola – FErradura)</h3>
-                    </div>
-
-                    <form onsubmit="salvarSumula('Tetarfe', event)" class="p-4 sm:p-6 space-y-6">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-amber-50/50 p-3 rounded border border-amber-200 text-xs">
-                            <div>
-                                <label class="font-bold text-gray-800">MTG/FEDERAÇÃO:</label>
-                                <input type="text" placeholder="MTG / Federação" class="sumula-input bg-white text-left font-bold">
-                            </div>
-                            <div>
-                                <label class="font-bold text-gray-800">EQUIPE:</label>
-                                <input type="text" placeholder="Nome da Equipe" class="sumula-input bg-white text-left font-bold">
-                            </div>
-                        </div>
-
-                        <!-- 4 Athletes Detailed Score Blocks -->
-                        <div id="tetarfe-athletes-container" class="space-y-6">
-                            <script>
-                                for(let a=1; a<=4; a++){
-                                    document.write(`
-                                        <div class="bg-white border-2 border-slate-700 rounded-lg p-3 space-y-2">
-                                            <div class="flex items-center gap-2 bg-slate-800 text-white px-3 py-1.5 rounded text-xs font-bold">
-                                                <i class="fa-solid fa-user-gear text-amber-400"></i>
-                                                <span>ATLETA ${a}:</span>
-                                                <input type="text" placeholder="Nome Completo do Atleta ${a}" class="sumula-input text-left text-slate-900 bg-white font-semibold py-0.5">
-                                            </div>
-
-                                            <div class="overflow-x-auto">
-                                                <table class="w-full sumula-table text-xs">
-                                                    <thead>
-                                                        <tr class="bg-amber-100 text-amber-900 font-bold">
-                                                            <th class="w-36 text-left">JOGOS</th>
-                                                            <th colspan="10" class="text-center">ARREMESSOS / PONTOS</th>
-                                                            <th class="w-28 text-center bg-amber-200 font-black">TOTAL PONTOS</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <!-- TEJO -->
-                                                        <tr>
-                                                            <td class="font-bold bg-gray-50">TEJO (10 Fichas)</td>
-                                                            ${[1,2,3,4,5,6,7,8,9,10].map(i => `<td><input type="number" onchange="calcTetarfeAthlete(${a})" class="sumula-input tet-a${a}-tejo"></td>`).join('')}
-                                                            <td class="text-center font-bold bg-amber-50"><span id="tet-tot-a${a}-tejo">0</span></td>
-                                                        </tr>
-                                                        <!-- TAVA -->
-                                                        <tr>
-                                                            <td class="font-bold bg-gray-50">TAVA (04 arremessos)</td>
-                                                            ${[1,2,3,4].map(i => `<td><input type="number" onchange="calcTetarfeAthlete(${a})" class="sumula-input tet-a${a}-tava"></td>`).join('')}
-                                                            <td colspan="6" class="bg-gray-100"></td>
-                                                            <td class="text-center font-bold bg-amber-50"><span id="tet-tot-a${a}-tava">0</span></td>
-                                                        </tr>
-                                                        <!-- ARGOLA -->
-                                                        <tr>
-                                                            <td class="font-bold bg-gray-50">ARGOLA (03 arremessos)</td>
-                                                            ${[1,2,3].map(i => `<td><input type="number" onchange="calcTetarfeAthlete(${a})" class="sumula-input tet-a${a}-argola"></td>`).join('')}
-                                                            <td colspan="7" class="bg-gray-100"></td>
-                                                            <td class="text-center font-bold bg-amber-50"><span id="tet-tot-a${a}-argola">0</span></td>
-                                                        </tr>
-                                                        <!-- FERRADURA -->
-                                                        <tr>
-                                                            <td class="font-bold bg-gray-50">FERRADURA (03 arremessos)</td>
-                                                            ${[1,2,3].map(i => `<td><input type="number" onchange="calcTetarfeAthlete(${a})" class="sumula-input tet-a${a}-ferradura"></td>`).join('')}
-                                                            <td colspan="7" class="bg-gray-100"></td>
-                                                            <td class="text-center font-bold bg-amber-50"><span id="tet-tot-a${a}-ferradura">0</span></td>
-                                                        </tr>
-                                                        <!-- TOTAL GERAL ATLETA -->
-                                                        <tr class="bg-slate-900 text-white font-black">
-                                                            <td colspan="11" class="text-right pr-3 uppercase">TOTAL GERAL ATLETA ${a}:</td>
-                                                            <td class="text-center text-amber-400 text-sm font-black"><span id="tet-tot-a${a}-geral">0</span></td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    `);
-                                }
-                            </script>
-                        </div>
-
-                        <!-- Summary Team Total Table -->
-                        <div class="bg-amber-100 border-2 border-amber-600 rounded-lg p-3">
-                            <h4 class="font-black text-center text-amber-950 uppercase mb-2">TOTAL DE PONTOS CONQUISTADOS PELA EQUIPE</h4>
-                            <div class="grid grid-cols-5 gap-2 text-center text-xs font-bold">
-                                <div class="bg-white p-2 rounded border border-amber-300">
-                                    <div>Atleta 1</div>
-                                    <div id="summary-tet-a1" class="text-base font-black text-slate-800">0</div>
-                                </div>
-                                <div class="bg-white p-2 rounded border border-amber-300">
-                                    <div>Atleta 2</div>
-                                    <div id="summary-tet-a2" class="text-base font-black text-slate-800">0</div>
-                                </div>
-                                <div class="bg-white p-2 rounded border border-amber-300">
-                                    <div>Atleta 3</div>
-                                    <div id="summary-tet-a3" class="text-base font-black text-slate-800">0</div>
-                                </div>
-                                <div class="bg-white p-2 rounded border border-amber-300">
-                                    <div>Atleta 4</div>
-                                    <div id="summary-tet-a4" class="text-base font-black text-slate-800">0</div>
-                                </div>
-                                <div class="bg-slate-900 text-amber-400 p-2 rounded">
-                                    <div>TOTAL EQUIPE</div>
-                                    <div id="summary-tet-equipe" class="text-lg font-black">0</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Rules Grid -->
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-gray-700 bg-gray-50 p-3 rounded border border-gray-300">
-                            <div class="border p-2 bg-white rounded">
-                                <strong class="block text-slate-900 uppercase">TEJO:</strong>
-                                Pontuação: 5, 4, 3, 2 ou -1.<br>
-                                Máxima: 50 pts | Mínima: -10 pts.
-                            </div>
-                            <div class="border p-2 bg-white rounded">
-                                <strong class="block text-slate-900 uppercase">TAVA:</strong>
-                                Pontuação: 2, 1, 0, -1 ou -2.<br>
-                                Máxima: 8 pts | Mínima: -8 pts.
-                            </div>
-                            <div class="border p-2 bg-white rounded">
-                                <strong class="block text-slate-900 uppercase">ARGOLA:</strong>
-                                Pontuação: 5, 3 e 1.<br>
-                                Máxima: 8 pts | Mínima: 0 pts.
-                            </div>
-                            <div class="border p-2 bg-white rounded">
-                                <strong class="block text-slate-900 uppercase">FERRADURA:</strong>
-                                Pontuação: 5, 3 ou 2.<br>
-                                Máxima: 15 pts | Mínima: 0 pts.
-                            </div>
-                        </div>
-
-                        <!-- Signatures -->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 text-xs text-center text-gray-800">
-                            <div class="border-t border-gray-400 pt-1">
-                                <strong>Nome do Árbitro / Assinatura</strong>
-                                <input type="text" class="sumula-input mt-1">
-                            </div>
-                            <div class="border-t border-gray-400 pt-1">
-                                <strong>Responsável p/ Dep. de TETARFE</strong>
-                                <input type="text" class="sumula-input mt-1">
-                            </div>
-                            <div class="border-t border-gray-400 pt-1">
-                                <strong>Diretor de Esportes da CBTG</strong>
-                                <input type="text" class="sumula-input mt-1">
-                            </div>
-                        </div>
-
-                        <div class="flex justify-end pt-4 no-print">
-                            <button type="submit" class="px-6 py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white font-bold rounded-lg shadow transition-all flex items-center gap-2">
-                                <i class="fa-solid fa-floppy-disk"></i> Salvar Súmula Tetarfe
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </section>
-
-            <!-- 5. SÚMULA TRUCO DE AMOSTRA (bg-green) -->
-            <section id="sec-truco-amostra" class="view-section hidden max-w-5xl mx-auto">
-                <div class="bg-white rounded-xl shadow-md border-t-8 border-green-600 overflow-hidden print-area">
-                    <div class="p-4 bg-green-50 border-b border-green-200 text-center">
-                        <h2 class="font-black text-sm sm:text-base text-green-950 uppercase">CONFEDERAÇÃO BRASILEIRA DA TRADIÇÃO GAÚCHA - CBTG</h2>
-                        <p class="text-xs font-bold text-green-800">DEPARTAMENTO DE ESPORTES - JOGOS TRADICIONALISTAS</p>
-                        <h3 class="text-sm font-black text-slate-900 underline mt-1 uppercase">SÚMULA DO JOGO DE TRUCO DE AMOSTRA - Modalidade - TRIO</h3>
-                    </div>
-
-                    <form onsubmit="salvarSumula('Truco de Amostra', event)" class="p-4 sm:p-6 space-y-6">
-                        <!-- Main Match Table -->
-                        <div class="overflow-x-auto">
-                            <table class="w-full sumula-table text-xs border-collapse">
-                                <thead>
-                                    <tr class="bg-green-800 text-white font-bold">
-                                        <th colspan="3" class="w-1/2 py-2">MTG / FEDERAÇÃO (TRIO A)</th>
-                                        <th class="w-16 bg-black">X</th>
-                                        <th colspan="3" class="w-1/2 py-2">MTG / FEDERAÇÃO (TRIO B)</th>
-                                    </tr>
-                                    <tr class="bg-gray-100 font-bold">
-                                        <td>NOME DO TRIO</td>
-                                        <td class="w-20 text-center">Nº TRIO</td>
-                                        <td class="w-28 text-center">TENTOS MARCADOS</td>
-                                        <td class="bg-green-700 text-white text-center font-black">PARTIDAS</td>
-                                        <td class="w-28 text-center">TENTOS MARCADOS</td>
-                                        <td class="w-20 text-center">Nº TRIO</td>
-                                        <td>NOME DO TRIO</td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="bg-white">
-                                        <td rowspan="3"><input type="text" placeholder="Nome Trio A" class="sumula-input h-full text-left font-bold"></td>
-                                        <td rowspan="3"><input type="text" class="sumula-input text-center"></td>
-                                        <td><input type="number" id="tr-a-p1" onchange="calcTruco('tr')" class="sumula-input"></td>
-                                        <td class="bg-gray-200 text-center font-bold">1ª</td>
-                                        <td><input type="number" id="tr-b-p1" onchange="calcTruco('tr')" class="sumula-input"></td>
-                                        <td rowspan="3"><input type="text" class="sumula-input text-center"></td>
-                                        <td rowspan="3"><input type="text" placeholder="Nome Trio B" class="sumula-input h-full text-left font-bold"></td>
-                                    </tr>
-                                    <tr>
-                                        <td><input type="number" id="tr-a-p2" onchange="calcTruco('tr')" class="sumula-input"></td>
-                                        <td class="bg-gray-200 text-center font-bold">2ª</td>
-                                        <td><input type="number" id="tr-b-p2" onchange="calcTruco('tr')" class="sumula-input"></td>
-                                    </tr>
-                                    <tr>
-                                        <td><input type="number" id="tr-a-p3" onchange="calcTruco('tr')" class="sumula-input"></td>
-                                        <td class="bg-gray-200 text-center font-bold">3ª</td>
-                                        <td><input type="number" id="tr-b-p3" onchange="calcTruco('tr')" class="sumula-input"></td>
-                                    </tr>
-                                    <tr class="bg-green-100 font-bold text-gray-900">
-                                        <td colspan="2" class="text-right pr-2 uppercase">Soma dos Tentos Marcados:</td>
-                                        <td class="text-center text-sm font-black text-green-900"><span id="tr-tot-a">0</span></td>
-                                        <td class="bg-green-800 text-white text-center font-black">X</td>
-                                        <td class="text-center text-sm font-black text-green-900"><span id="tr-tot-b">0</span></td>
-                                        <td colspan="2" class="text-left pl-2 uppercase">Soma dos Tentos Marcados</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <p class="text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-300 italic">
-                            <strong>Obs.:</strong> O trio que ganhar duas partidas consecutivas, marcará 3 partidas ganhas e 90 tentos e o perdedor 0 (zero) partida + a soma dos pontos marcados nas 2 partidas que perdeu.
-                        </p>
-
-                        <!-- Winners & Losers Box -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <!-- Trio Vencedor -->
-                            <div class="border-2 border-green-600 rounded-lg p-3 bg-green-50/50 space-y-2">
-                                <h4 class="font-black text-green-900 uppercase text-center border-b border-green-300 pb-1">TRIO VENCEDOR</h4>
-                                <div class="grid grid-cols-2 gap-2 text-xs">
-                                    <div>
-                                        <label class="font-bold text-gray-700">PARTIDAS VENCIDAS:</label>
-                                        <input type="number" class="sumula-input font-bold">
-                                    </div>
-                                    <div>
-                                        <label class="font-bold text-gray-700">TENTOS MARCADOS:</label>
-                                        <input type="number" class="sumula-input font-bold">
-                                    </div>
-                                </div>
-                                <div class="pt-2">
-                                    <label class="font-bold text-xs text-gray-700">Assinatura do Capataz Trio Vencedor:</label>
-                                    <input type="text" class="sumula-input mt-1">
-                                </div>
-                            </div>
-
-                            <!-- Trio Perdedor -->
-                            <div class="border-2 border-red-300 rounded-lg p-3 bg-red-50/30 space-y-2">
-                                <h4 class="font-black text-red-900 uppercase text-center border-b border-red-200 pb-1">TRIO PERDEDOR</h4>
-                                <div class="grid grid-cols-2 gap-2 text-xs">
-                                    <div>
-                                        <label class="font-bold text-gray-700">PARTIDAS VENCIDAS:</label>
-                                        <input type="number" class="sumula-input font-bold">
-                                    </div>
-                                    <div>
-                                        <label class="font-bold text-gray-700">TENTOS MARCADOS:</label>
-                                        <input type="number" class="sumula-input font-bold">
-                                    </div>
-                                </div>
-                                <div class="pt-2">
-                                    <label class="font-bold text-xs text-gray-700">Assinatura do Capataz Trio Perdedor:</label>
-                                    <input type="text" class="sumula-input mt-1">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 text-xs text-center text-gray-800">
-                            <div class="border-t border-gray-400 pt-1">
-                                <strong>Nome do Árbitro / Assinatura</strong>
-                                <input type="text" class="sumula-input mt-1">
-                            </div>
-                            <div class="border-t border-gray-400 pt-1">
-                                <strong>Responsável p/ Dep. De Truco</strong>
-                                <input type="text" class="sumula-input mt-1">
-                            </div>
-                            <div class="border-t border-gray-400 pt-1">
-                                <strong>Diretor de Esportes da CBTG</strong>
-                                <input type="text" class="sumula-input mt-1">
-                            </div>
-                        </div>
-
-                        <div class="flex justify-end pt-4 no-print">
-                            <button type="submit" class="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow transition-all flex items-center gap-2">
-                                <i class="fa-solid fa-floppy-disk"></i> Salvar Súmula Truco de Amostra
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </section>
-
-            <!-- 6. SÚMULA TRUCO CEGO (bg-blue) -->
-            <section id="sec-truco-cego" class="view-section hidden max-w-5xl mx-auto">
-                <div class="bg-white rounded-xl shadow-md border-t-8 border-blue-600 overflow-hidden print-area">
-                    <div class="p-4 bg-blue-50 border-b border-blue-200 text-center">
-                        <h2 class="font-black text-sm sm:text-base text-blue-950 uppercase">CONFEDERAÇÃO BRASILEIRA DA TRADIÇÃO GAÚCHA - CBTG</h2>
-                        <p class="text-xs font-bold text-blue-800">DEPARTAMENTO DE ESPORTES - JOGOS TRADICIONALISTAS</p>
-                        <h3 class="text-sm font-black text-slate-900 underline mt-1 uppercase">SÚMULA DO JOGO DE TRUCO CEGO - Modalidade - TRIO</h3>
-                    </div>
-
-                    <form onsubmit="salvarSumula('Truco Cego', event)" class="p-4 sm:p-6 space-y-6">
-                        <!-- Main Match Table -->
-                        <div class="overflow-x-auto">
-                            <table class="w-full sumula-table text-xs border-collapse">
-                                <thead>
-                                    <tr class="bg-blue-800 text-white font-bold">
-                                        <th colspan="3" class="w-1/2 py-2">MTG / FEDERAÇÃO (TRIO A)</th>
-                                        <th class="w-16 bg-black">X</th>
-                                        <th colspan="3" class="w-1/2 py-2">MTG / FEDERAÇÃO (TRIO B)</th>
-                                    </tr>
-                                    <tr class="bg-gray-100 font-bold">
-                                        <td>NOME DO TRIO</td>
-                                        <td class="w-20 text-center">Nº TRIO</td>
-                                        <td class="w-28 text-center">TENTOS MARCADOS</td>
-                                        <td class="bg-blue-700 text-white text-center font-black">PARTIDAS</td>
-                                        <td class="w-28 text-center">TENTOS MARCADOS</td>
-                                        <td class="w-20 text-center">Nº TRIO</td>
-                                        <td>NOME DO TRIO</td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="bg-white">
-                                        <td rowspan="3"><input type="text" placeholder="Nome Trio A" class="sumula-input h-full text-left font-bold"></td>
-                                        <td rowspan="3"><input type="text" class="sumula-input text-center"></td>
-                                        <td><input type="number" id="tc-a-p1" onchange="calcTruco('tc')" class="sumula-input"></td>
-                                        <td class="bg-gray-200 text-center font-bold">1ª</td>
-                                        <td><input type="number" id="tc-b-p1" onchange="calcTruco('tc')" class="sumula-input"></td>
-                                        <td rowspan="3"><input type="text" class="sumula-input text-center"></td>
-                                        <td rowspan="3"><input type="text" placeholder="Nome Trio B" class="sumula-input h-full text-left font-bold"></td>
-                                    </tr>
-                                    <tr>
-                                        <td><input type="number" id="tc-a-p2" onchange="calcTruco('tc')" class="sumula-input"></td>
-                                        <td class="bg-gray-200 text-center font-bold">2ª</td>
-                                        <td><input type="number" id="tc-b-p2" onchange="calcTruco('tc')" class="sumula-input"></td>
-                                    </tr>
-                                    <tr>
-                                        <td><input type="number" id="tc-a-p3" onchange="calcTruco('tc')" class="sumula-input"></td>
-                                        <td class="bg-gray-200 text-center font-bold">3ª</td>
-                                        <td><input type="number" id="tc-b-p3" onchange="calcTruco('tc')" class="sumula-input"></td>
-                                    </tr>
-                                    <tr class="bg-blue-100 font-bold text-gray-900">
-                                        <td colspan="2" class="text-right pr-2 uppercase">Soma dos Tentos Marcados:</td>
-                                        <td class="text-center text-sm font-black text-blue-900"><span id="tc-tot-a">0</span></td>
-                                        <td class="bg-blue-800 text-white text-center font-black">X</td>
-                                        <td class="text-center text-sm font-black text-blue-900"><span id="tc-tot-b">0</span></td>
-                                        <td colspan="2" class="text-left pl-2 uppercase">Soma dos Tentos Marcados</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <p class="text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-300 italic">
-                            <strong>Obs.:</strong> O trio que ganhar duas partidas consecutivas, marcará 3 partidas ganhas e 90 tentos e o perdedor 0 (zero) partida + a soma dos pontos marcados nas 2 partidas que perdeu.
-                        </p>
-
-                        <!-- Winners & Losers Box -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="border-2 border-blue-600 rounded-lg p-3 bg-blue-50/50 space-y-2">
-                                <h4 class="font-black text-blue-900 uppercase text-center border-b border-blue-300 pb-1">TRIO VENCEDOR</h4>
-                                <div class="grid grid-cols-2 gap-2 text-xs">
-                                    <div>
-                                        <label class="font-bold text-gray-700">PARTIDAS VENCIDAS:</label>
-                                        <input type="number" class="sumula-input font-bold">
-                                    </div>
-                                    <div>
-                                        <label class="font-bold text-gray-700">TENTOS MARCADOS:</label>
-                                        <input type="number" class="sumula-input font-bold">
-                                    </div>
-                                </div>
-                                <div class="pt-2">
-                                    <label class="font-bold text-xs text-gray-700">Assinatura do Capataz Trio Vencedor:</label>
-                                    <input type="text" class="sumula-input mt-1">
-                                </div>
-                            </div>
-
-                            <div class="border-2 border-red-300 rounded-lg p-3 bg-red-50/30 space-y-2">
-                                <h4 class="font-black text-red-900 uppercase text-center border-b border-red-200 pb-1">TRIO PERDEDOR</h4>
-                                <div class="grid grid-cols-2 gap-2 text-xs">
-                                    <div>
-                                        <label class="font-bold text-gray-700">PARTIDAS VENCIDAS:</label>
-                                        <input type="number" class="sumula-input font-bold">
-                                    </div>
-                                    <div>
-                                        <label class="font-bold text-gray-700">TENTOS MARCADOS:</label>
-                                        <input type="number" class="sumula-input font-bold">
-                                    </div>
-                                </div>
-                                <div class="pt-2">
-                                    <label class="font-bold text-xs text-gray-700">Assinatura do Capataz Trio Perdedor:</label>
-                                    <input type="text" class="sumula-input mt-1">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 text-xs text-center text-gray-800">
-                            <div class="border-t border-gray-400 pt-1">
-                                <strong>Nome do Árbitro / Assinatura</strong>
-                                <input type="text" class="sumula-input mt-1">
-                            </div>
-                            <div class="border-t border-gray-400 pt-1">
-                                <strong>Responsável p/ Dep. De Truco</strong>
-                                <input type="text" class="sumula-input mt-1">
-                            </div>
-                            <div class="border-t border-gray-400 pt-1">
-                                <strong>Diretor de Esportes da CBTG</strong>
-                                <input type="text" class="sumula-input mt-1">
-                            </div>
-                        </div>
-
-                        <div class="flex justify-end pt-4 no-print">
-                            <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow transition-all flex items-center gap-2">
-                                <i class="fa-solid fa-floppy-disk"></i> Salvar Súmula Truco Cego
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </section>
-
-            <!-- 7. SÚMULA BOCHA 48 (bg-indigo) -->
-            <section id="sec-bocha-48" class="view-section hidden max-w-5xl mx-auto">
-                <div class="bg-white rounded-xl shadow-md border-t-8 border-indigo-600 overflow-hidden print-area">
-                    <!-- Header -->
-                    <div class="p-4 bg-indigo-50 border-b border-indigo-200">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <div class="w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                                    6ª RT
-                                </div>
-                                <div>
-                                    <h2 class="font-black text-sm sm:text-base text-indigo-950 uppercase">CTG Rodeio dos Palmares - 6ª Região Tradicionalista</h2>
-                                    <p class="text-xs text-indigo-800 font-bold uppercase">Jogos Tradicionalista Gaúcho - Súmula Bocha 48</p>
-                                </div>
-                            </div>
-                            <div class="text-right text-xs">
-                                <span class="bg-indigo-600 text-white px-2 py-1 rounded font-bold uppercase">MODALIDADE DUPLA</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <form onsubmit="salvarSumula('Bocha 48', event)" class="p-4 sm:p-6 space-y-6">
-                        <div class="grid grid-cols-2 gap-3 text-xs bg-indigo-50/50 p-2 rounded border border-indigo-200">
-                            <div>
-                                <label class="font-bold text-gray-700">Fase:</label>
-                                <input type="text" placeholder="Ex: Semifinal" class="sumula-input bg-white">
-                            </div>
-                            <div>
-                                <label class="font-bold text-gray-700">Jogo Nº:</label>
-                                <input type="text" placeholder="Ex: 04" class="sumula-input bg-white">
-                            </div>
-                        </div>
-
-                        <!-- FIRST DUPLA -->
-                        <div class="border-2 border-slate-700 rounded-lg p-3 space-y-3">
-                            <div class="flex items-center justify-between bg-slate-800 text-white px-3 py-1.5 rounded text-xs font-bold">
-                                <span>CTG / ENTIDADE (DUPLA 1)</span>
-                                <input type="text" placeholder="Nome CTG Dupla 1" class="sumula-input w-64 bg-white text-slate-900 text-left font-bold py-0.5">
-                            </div>
-
-                            <div class="overflow-x-auto">
-                                <table class="w-full sumula-table text-xs">
-                                    <thead>
-                                        <tr class="bg-indigo-100 text-indigo-900 font-bold">
-                                            <th class="w-8">Nº</th>
-                                            <th class="w-48 text-left">NOME DOS ATLETAS</th>
-                                            <th colspan="5" class="text-center">1ª Série</th>
-                                            <th colspan="3" class="text-center">2ª Série</th>
-                                            <th class="w-28 text-center bg-indigo-200 font-black">TOTAL DE PONTOS</th>
-                                        </tr>
-                                        <tr class="bg-gray-100 font-bold text-center text-gray-700">
-                                            <td></td><td></td>
-                                            <td>1</td><td>2</td><td>3</td><td>4</td><td>5</td>
-                                            <td>6</td><td>7</td><td>8</td>
-                                            <td>PTS</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <script>
-                                            for(let a=1; a<=2; a++){
-                                                document.write(`
-                                                    <tr>
-                                                        <td class="text-center font-bold">${a}</td>
-                                                        <td><input type="text" placeholder="Atleta ${a}" class="sumula-input text-left font-semibold"></td>
-                                                        ${[1,2,3,4,5,6,7,8].map(n => `<td><input type="number" onchange="calcBocha48(1)" class="sumula-input b48-d1-a${a}"></td>`).join('')}
-                                                        <td class="text-center font-black bg-indigo-50"><span id="b48-tot-d1-a${a}">0</span></td>
-                                                    </tr>
-                                                `);
-                                            }
-                                        </script>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Legend values -->
-                            <div class="bg-gray-100 p-2 rounded text-[11px] grid grid-cols-6 gap-1 text-center font-bold text-gray-700 border border-gray-300">
-                                <div>FRENTE: 2</div>
-                                <div>ESQUERDA: 4</div>
-                                <div>DIREITA: 6</div>
-                                <div>ATRÁS: 8</div>
-                                <div>BOLIM: 12</div>
-                                <div class="bg-indigo-900 text-white rounded">TOTAL: <span id="b48-tot-dupla1">0</span></div>
-                            </div>
-                        </div>
-
-                        <!-- CONTRA DIVIDER -->
-                        <div class="text-center font-black text-gray-500 uppercase tracking-widest text-xs my-2 flex items-center gap-2">
-                            <hr class="flex-1 border-gray-300"> CONTRA <hr class="flex-1 border-gray-300">
-                        </div>
-
-                        <!-- SECOND DUPLA -->
-                        <div class="border-2 border-slate-700 rounded-lg p-3 space-y-3">
-                            <div class="flex items-center justify-between bg-slate-800 text-white px-3 py-1.5 rounded text-xs font-bold">
-                                <span>CTG / ENTIDADE (DUPLA 2)</span>
-                                <input type="text" placeholder="Nome CTG Dupla 2" class="sumula-input w-64 bg-white text-slate-900 text-left font-bold py-0.5">
-                            </div>
-
-                            <div class="overflow-x-auto">
-                                <table class="w-full sumula-table text-xs">
-                                    <thead>
-                                        <tr class="bg-indigo-100 text-indigo-900 font-bold">
-                                            <th class="w-8">Nº</th>
-                                            <th class="w-48 text-left">NOME DOS ATLETAS</th>
-                                            <th colspan="5" class="text-center">1ª Série</th>
-                                            <th colspan="3" class="text-center">2ª Série</th>
-                                            <th class="w-28 text-center bg-indigo-200 font-black">TOTAL DE PONTOS</th>
-                                        </tr>
-                                        <tr class="bg-gray-100 font-bold text-center text-gray-700">
-                                            <td></td><td></td>
-                                            <td>1</td><td>2</td><td>3</td><td>4</td><td>5</td>
-                                            <td>6</td><td>7</td><td>8</td>
-                                            <td>PTS</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <script>
-                                            for(let a=1; a<=2; a++){
-                                                document.write(`
-                                                    <tr>
-                                                        <td class="text-center font-bold">${a}</td>
-                                                        <td><input type="text" placeholder="Atleta ${a}" class="sumula-input text-left font-semibold"></td>
-                                                        ${[1,2,3,4,5,6,7,8].map(n => `<td><input type="number" onchange="calcBocha48(2)" class="sumula-input b48-d2-a${a}"></td>`).join('')}
-                                                        <td class="text-center font-black bg-indigo-50"><span id="b48-tot-d2-a${a}">0</span></td>
-                                                    </tr>
-                                                `);
-                                            }
-                                        </script>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Legend values -->
-                            <div class="bg-gray-100 p-2 rounded text-[11px] grid grid-cols-6 gap-1 text-center font-bold text-gray-700 border border-gray-300">
-                                <div>FRENTE: 2</div>
-                                <div>ESQUERDA: 4</div>
-                                <div>DIREITA: 6</div>
-                                <div>ATRÁS: 8</div>
-                                <div>BOLIM: 12</div>
-                                <div class="bg-indigo-900 text-white rounded">TOTAL: <span id="b48-tot-dupla2">0</span></div>
-                            </div>
-                        </div>
-
-                        <!-- Result Box -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="border border-indigo-300 rounded p-3 bg-indigo-50/40 text-xs">
-                                <strong>DUPLA VENCEDORA:</strong>
-                                <input type="text" placeholder="Nome da Dupla Vencedora" class="sumula-input mt-1 font-bold">
-                                <div class="mt-2">
-                                    <label class="font-semibold">Assinatura Capataz Dupla Vencedora:</label>
-                                    <input type="text" class="sumula-input mt-0.5">
-                                </div>
-                            </div>
-                            <div class="border border-red-300 rounded p-3 bg-red-50/40 text-xs">
-                                <strong>DUPLA PERDEDORA:</strong>
-                                <input type="text" placeholder="Nome da Dupla Perdedora" class="sumula-input mt-1 font-bold">
-                                <div class="mt-2">
-                                    <label class="font-semibold">Assinatura Capataz Dupla Perdedora:</label>
-                                    <input type="text" class="sumula-input mt-0.5">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Signatures -->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 text-xs text-center text-gray-800">
-                            <div class="border-t border-gray-400 pt-1">
-                                <strong>JUIZ</strong>
-                                <input type="text" class="sumula-input mt-1">
-                            </div>
-                            <div class="border-t border-gray-400 pt-1">
-                                <strong>DATA</strong>
-                                <input type="date" class="sumula-input mt-1">
-                            </div>
-                            <div class="border-t border-gray-400 pt-1">
-                                <strong>Diretor Esporte CTG</strong>
-                                <input type="text" class="sumula-input mt-1">
-                            </div>
-                        </div>
-
-                        <div class="flex justify-end pt-4 no-print">
-                            <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow transition-all flex items-center gap-2">
-                                <i class="fa-solid fa-floppy-disk"></i> Salvar Súmula Bocha 48
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </section>
-
-        </main>
+  <app-overlay :open="overlay.open" :title="overlay.title" :subtitle="overlay.subtitle" :mode="overlay.mode" :busy="overlay.busy" :show-footer="false" @close="closeOverlay">
+    <div v-if="overlay.kind==='registration'" class="space-y-5">
+      <div class="flex items-center gap-2" aria-label="Progresso da inscrição"><template v-for="step in 4" :key="step"><span :class="['h-1.5 flex-1 rounded-full transition',step<=wizardStep?'bg-emerald-400':'bg-white/10']"></span></template></div>
+      <div><p class="text-xs font-extrabold uppercase tracking-[.18em] text-emerald-400">Etapa {{ wizardStep }} de 4</p><h3 class="mt-1 text-lg font-extrabold text-white">{{ registrationStepTitle }}</h3></div>
+      <form @submit.prevent="nextRegistrationStep">
+        <div v-if="wizardStep===1" class="space-y-4">
+          <div><label class="mb-1.5 block text-xs font-bold text-slate-300">Nome do piquete <span class="text-red-400">*</span></label><input v-model.trim="registration.nome" required class="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white" placeholder="Nova entidade / piquete"></div>
+          <div><label class="mb-1.5 block text-xs font-bold text-slate-300">Nome do Capataz <span class="text-red-400">*</span></label><input v-model.trim="registration.capataz" required class="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white" placeholder="Responsável pelo piquete"></div>
+          <div><label class="mb-1.5 block text-xs font-bold text-slate-300">Contato</label><input v-model.trim="registration.contato" inputmode="tel" class="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white" placeholder="Telefone, WhatsApp ou outro contato"></div>
+        </div>
+        <div v-else-if="wizardStep===2" class="space-y-3">
+          <article v-for="(athlete,index) in registration.atletas" :key="athlete.key||athlete.id||index" class="rounded-2xl border border-white/[.07] bg-white/[.025] p-4">
+            <div class="flex items-start gap-2">
+            <div class="min-w-0 flex-1">
+            <label class="mb-1.5 block text-xs font-bold text-slate-300">Nome completo {{ index+1 }} <span :class="index===0?'text-red-400':'text-slate-600'">{{ index===0?'*':'(opcional)' }}</span></label>
+            <input v-model.trim="athlete.nome" :required="index===0" class="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-2.5 text-sm text-white" :placeholder="index===0?'Nome obrigatório':'Nome opcional'">
+            </div><button v-if="registration.atletas.length>1" type="button" class="mt-6 grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-red-400/[.07] text-red-300 hover:bg-red-400/15" aria-label="Remover integrante" @click="removeAthlete(index)"><i class="fa-solid fa-trash text-xs"></i></button></div>
+            <div class="mt-3 flex gap-2"><button type="button" :class="['flex-1 rounded-lg px-3 py-2 text-xs font-bold transition',athlete.tipo==='Titular'?'bg-emerald-400/15 text-emerald-300 ring-1 ring-emerald-400/25':'bg-white/5 text-slate-500']" @click="athlete.tipo='Titular'"><i :class="athlete.tipo==='Titular'?'fa-solid fa-circle-check':'fa-regular fa-circle'" class="mr-1"></i>Titular</button><button type="button" :class="['flex-1 rounded-lg px-3 py-2 text-xs font-bold transition',athlete.tipo==='Reserva'?'bg-amber-400/15 text-amber-300 ring-1 ring-amber-400/25':'bg-white/5 text-slate-500']" @click="athlete.tipo='Reserva'"><i :class="athlete.tipo==='Reserva'?'fa-solid fa-circle-check':'fa-regular fa-circle'" class="mr-1"></i>Reserva</button></div>
+          </article>
+          <button type="button" class="w-full rounded-xl border border-dashed border-emerald-400/30 bg-emerald-400/[.04] px-4 py-3 text-sm font-extrabold text-emerald-300 hover:bg-emerald-400/[.08]" @click="addAthlete"><i class="fa-solid fa-user-plus mr-2"></i>Adicionar integrante</button>
+        </div>
+        <div v-else-if="wizardStep===3" class="space-y-3"><p class="text-xs leading-5 text-slate-400">Marque livremente as modalidades de cada integrante. Essas escolhas preencherão automaticamente as súmulas.</p><article v-for="athlete in filledAthletes" :key="athlete.key||athlete.id||athlete.nome" class="rounded-2xl border border-white/[.07] bg-white/[.025] p-4"><div class="flex items-center gap-3"><span class="grid h-9 w-9 place-items-center rounded-xl bg-white/5 text-xs font-extrabold text-slate-400">{{ initials(athlete.nome) }}</span><div><p class="text-sm font-extrabold text-white">{{ athlete.nome }}</p><p class="text-[11px] text-slate-500">{{ athlete.tipo }}</p></div></div><div class="mt-3 grid gap-2 sm:grid-cols-2"><label v-for="mod in modalidades" :key="mod.id" :class="['flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-bold transition',athlete.modalidades.includes(mod.id)?'border-emerald-400/25 bg-emerald-400/10 text-emerald-300':'border-white/[.07] bg-white/[.02] text-slate-400']"><input v-model="athlete.modalidades" type="checkbox" :value="mod.id" class="h-4 w-4 accent-emerald-400"><span>{{ mod.nome }}</span></label></div></article></div>
+        <div v-else class="space-y-4">
+          <div class="rounded-2xl border border-emerald-400/15 bg-emerald-400/[.04] p-4"><p class="text-xs font-bold uppercase tracking-wider text-slate-500">Entidade / Piquete</p><p class="mt-1 text-lg font-extrabold text-white">{{ registration.nome }}</p><p class="mt-1 text-sm text-slate-400">Capataz: {{ registration.capataz }}<span v-if="registration.contato"> · {{ registration.contato }}</span></p></div>
+          <div class="overflow-hidden rounded-2xl border border-white/[.07]"><div v-for="athlete in filledAthletes" :key="athlete.nome" class="flex items-center gap-3 border-b border-white/[.06] p-3 last:border-0"><span class="grid h-9 w-9 place-items-center rounded-xl bg-white/5 text-xs font-extrabold text-slate-400">{{ initials(athlete.nome) }}</span><span class="min-w-0 flex-1 truncate text-sm font-bold text-white">{{ athlete.nome }}</span><span :class="athlete.tipo==='Titular'?'bg-emerald-400/10 text-emerald-400 ring-1 ring-inset ring-emerald-500/20':'bg-amber-400/10 text-amber-400 ring-1 ring-inset ring-amber-400/20'" class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium">{{ athlete.tipo }}</span></div></div>
+        </div>
+        <div class="mt-6 flex justify-between border-t border-white/10 pt-4"><button type="button" class="rounded-xl bg-white/5 px-4 py-2.5 text-sm font-bold text-slate-300" @click="wizardStep===1?closeOverlay():wizardStep--">{{ wizardStep===1?'Cancelar':'Voltar' }}</button><button type="submit" class="min-w-28 rounded-xl bg-emerald-400 px-4 py-2.5 text-sm font-extrabold text-slate-950 disabled:opacity-60" :disabled="overlay.busy"><span v-if="overlay.busy" class="google-loader"><i></i><i></i><i></i><i></i></span><span v-else>{{ wizardStep===4?'Salvar tudo':'Continuar' }}</span></button></div>
+      </form>
     </div>
+    <div v-else-if="overlay.kind==='sumula'" class="space-y-5">
+      <div class="flex items-center gap-2"><span v-for="step in 2" :key="step" :class="['h-1.5 flex-1 rounded-full transition',sumulaStep>=step?activeModality.progress:'bg-white/10']"></span></div>
+      <div><p :class="['text-xs font-extrabold uppercase tracking-wider',activeModality.text]">{{ activeModality.nome }} · Etapa {{ sumulaStep }} de 2</p><h3 class="mt-1 text-lg font-extrabold text-white">{{ sumulaStepTitle }}</h3><p class="mt-1 text-xs text-slate-500">Os integrantes inscritos nesta modalidade serão carregados automaticamente e continuarão editáveis na súmula.</p></div>
+      <div v-if="sumulaStep===1" class="space-y-3">
+        <div v-for="slot in activeModality.equipes" :key="slot" class="rounded-2xl border border-white/[.07] bg-white/[.02] p-4"><label class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">{{ activeModality.equipes===1?'Equipe / Piquete':`Equipe ${slot}` }}</label><select v-model="sumulaTeams[slot-1].piqueteId" class="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white"><option value="">Selecione um piquete</option><option v-for="p in availablePiquetes(slot-1)" :key="p.id" :value="p.id">{{ p.nome }}</option></select><div v-if="activeModality.nomeTrio" class="mt-3"><label class="mb-1.5 block text-xs font-bold text-slate-400">Nome do trio {{ slot===1?'A':'B' }}</label><input v-model.trim="sumulaTeams[slot-1].nomeComposicao" class="w-full rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2.5 text-sm text-white" placeholder="Nome definido pelo usuário"></div></div>
+        <p v-if="!piquetes.length" class="rounded-xl border border-dashed border-white/10 p-6 text-center text-sm text-slate-500">Cadastre uma inscrição para receber opções de piquetes e integrantes.</p>
+      </div>
+      <div v-else class="space-y-4"><div :class="['rounded-2xl border p-5',activeModality.summary]"><div class="text-center"><i :class="activeModality.icon" class="text-2xl"></i><p class="mt-2 font-extrabold text-white">Composição automática preparada</p><p class="mt-1 text-xs text-slate-400">O cadastro centraliza os participantes; os campos da súmula permanecem livres para edição.</p></div><div class="mt-4 grid gap-2"><div v-for="(team,index) in selectedTeams" :key="index" class="rounded-xl bg-slate-950/30 p-3"><p class="text-xs font-extrabold text-white">{{ team.nomeComposicao || team.piquete?.nome || `Equipe ${index+1} não informada` }}</p><p v-if="team.nomeComposicao" class="mt-0.5 text-[11px] text-slate-500">{{ team.piquete?.nome }}</p><p class="mt-1 text-xs text-slate-500">{{ eligibleAthleteNames(team).join(', ') || 'Nenhum integrante inscrito nesta modalidade; preenchimento manual disponível' }}</p></div></div></div><div class="rounded-xl border border-amber-400/10 bg-amber-400/[.04] p-3 text-xs leading-5 text-amber-200/70"><i class="fa-solid fa-circle-info mr-2"></i>Quantidades são referências. O sistema automatiza a composição sem bloquear a gestão manual.</div></div>
+      <div class="flex justify-between border-t border-white/10 pt-4"><button class="rounded-xl bg-white/5 px-4 py-2.5 text-sm font-bold text-slate-300" @click="sumulaStep===1?closeOverlay():sumulaStep--">{{ sumulaStep===1?'Cancelar':'Voltar' }}</button><button v-if="sumulaStep<2" :class="['rounded-xl px-4 py-2.5 text-sm font-extrabold text-slate-950',activeModality.button]" @click="sumulaStep++">Revisar composição</button><button v-else :class="['rounded-xl px-4 py-2.5 text-sm font-extrabold text-slate-950',activeModality.button]" @click="finishSumulaSetup">Abrir súmula</button></div>
+    </div>
+    <div v-else-if="overlay.kind==='sumulaForm'" class="space-y-5 text-slate-800">
+      <div :class="[`print-${activeModality.id}`]" class="sumula-document overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <header :class="['border-b-4 p-5 text-center',activeModality.header]"><p class="text-xs font-black uppercase">CONFEDERAÇÃO BRASILEIRA DA TRADIÇÃO GAÚCHA - CBTG</p><p class="mt-1 text-[11px] font-bold uppercase">DEPARTAMENTO DE ESPORTES - JOGOS TRADICIONALISTAS</p><p class="mt-1 text-sm font-black">CTG Rodeio dos Palmares</p><h3 class="mt-2 text-base font-black uppercase">SÚMULA DO JOGO DE {{ activeModality.nome }}{{ activeModality.nomeTrio?' - Modalidade - TRIO':'' }}</h3></header>
+        <form class="space-y-5 p-4 sm:p-6" @submit.prevent="saveSumula">
+          <template v-if="activeModality.id==='tava'">
+            <div class="grid gap-3 sm:grid-cols-3"><label class="doc-label sm:col-span-2">Equipe / Piquete<input v-model="sumulaDraft.teams[0].piqueteNome" class="doc-input mt-1 rounded border border-slate-400 normal-case"></label><label class="doc-label">Data<input v-model="sumulaDraft.identificacao.data" type="date" class="doc-input mt-1 rounded border border-slate-400 normal-case"></label></div>
+            <div class="overflow-x-auto"><table class="doc-table min-w-[900px] text-xs"><thead><tr><th rowspan="2" class="w-12">Nº</th><th rowspan="2" class="min-w-64 text-left">ATLETAS DA EQUIPE</th><th colspan="11" class="text-center">ARREMESSOS/PONTOS</th><th rowspan="2" class="w-24">TOTAL<br>PONTOS</th></tr><tr><th v-for="n in 5" :key="`a${n}`">{{ n }}</th><th class="w-3 border-x-2 border-slate-700"></th><th v-for="n in [6,7,8,9,10]" :key="`b${n}`">{{ n }}</th></tr></thead><tbody><tr v-for="(athlete,index) in sumulaDraft.teams[0].athletes.slice(0,4)" :key="index"><td class="text-center font-black">{{ index+1 }}</td><td><input v-model="athlete.nome" class="doc-input font-semibold"></td><template v-for="(_,scoreIndex) in athlete.scores" :key="scoreIndex"><td v-if="scoreIndex===5" class="w-3 border-x-2 border-slate-700"></td><td><input v-model.number="athlete.scores[scoreIndex]" type="number" class="doc-input w-12 text-center"></td></template><td class="text-center font-black">{{ sumScores(athlete.scores) }}</td></tr><tr><th colspan="2" class="text-right">ANOTAÇÕES POSSÍVEIS</th><th>2</th><th>1</th><th>0</th><th>-1</th><th>-2</th><th class="border-x-2 border-slate-700"></th><th colspan="5" class="text-right">TOTAL GERAL</th><th class="text-center text-base">{{ topThreeTotal(sumulaDraft.teams[0]) }}</th></tr></tbody></table></div>
+            <div class="grid gap-3 sm:grid-cols-3"><label class="doc-label">Árbitro<input v-model="sumulaDraft.responsaveis.arbitro" class="doc-input mt-1 border-b border-slate-500 normal-case" placeholder="Nome / assinatura"></label><label class="doc-label">Capitão<input v-model="sumulaDraft.responsaveis.capitao" class="doc-input mt-1 border-b border-slate-500 normal-case" placeholder="Nome / assinatura"></label><label class="doc-label">Dir. Esporte<input v-model="sumulaDraft.responsaveis.diretorEsporte" class="doc-input mt-1 border-b border-slate-500 normal-case" placeholder="Nome / assinatura"></label></div>
+          </template>
+          <template v-else-if="activeModality.id==='tetarfe'">
+            <div class="grid gap-3 sm:grid-cols-2"><label class="doc-label">MTG / Federação<input v-model="sumulaDraft.identificacao.mtg" class="doc-input mt-1 rounded border border-slate-400 normal-case"></label><label class="doc-label">Equipe<input v-model="sumulaDraft.teams[0].piqueteNome" class="doc-input mt-1 rounded border border-slate-400 normal-case"></label></div>
+            <article v-for="(athlete,index) in sumulaDraft.teams[0].athletes.slice(0,4)" :key="index" class="overflow-x-auto"><table class="doc-table min-w-[820px] text-xs"><thead><tr><th class="w-56 text-left">Nome do Atleta</th><th colspan="11"><input v-model="athlete.nome" class="doc-input font-bold"></th></tr><tr><th>JOGOS</th><th colspan="10">ARREMESSOS/PONTOS</th><th>TOTAL DE PONTOS</th></tr></thead><tbody><tr v-for="game in athlete.games" :key="game.nome"><th class="text-left">{{ game.nome }} ({{ game.scores.length.toString().padStart(2,'0') }})</th><td v-for="(_,i) in game.scores" :key="i"><input v-model.number="game.scores[i]" type="number" class="doc-input w-10 text-center"></td><td v-if="game.scores.length<10" :colspan="10-game.scores.length"></td><td class="text-center font-black">{{ sumScores(game.scores) }}</td></tr><tr><th colspan="11" class="text-right">TOTAL GERAL</th><th class="text-center font-black">{{ athleteTotal(athlete) }}</th></tr></tbody></table></article>
+            <table class="doc-table text-xs"><thead><tr><th colspan="5">TOTAL DE PONTOS CONQUISTADOS PELA EQUIPE</th></tr><tr><th v-for="n in 4" :key="n">Atleta {{ n }}</th><th>Total da Equipe</th></tr></thead><tbody><tr><td v-for="athlete in sumulaDraft.teams[0].athletes.slice(0,4)" :key="athlete.id||athlete.nome" class="text-center font-black">{{ athleteTotal(athlete) }}</td><td class="text-center font-black">{{ topThreeTotal(sumulaDraft.teams[0]) }}</td></tr></tbody></table>
+            <div class="grid border border-slate-600 text-[10px] sm:grid-cols-4"><div class="p-2"><b>TEJO</b><br>Valores: 5, 4, 3, 2 ou -1.<br>Máx.: 50 | Mín.: -10</div><div class="border-l p-2"><b>TAVA</b><br>Valores: 2, 1, 0, -1 ou -2.<br>Máx.: 8 | Mín.: -8</div><div class="border-l p-2"><b>ARGOLA</b><br>Valores: 5, 3 e 1.<br>Máx.: 8 | Mín.: 0</div><div class="border-l p-2"><b>FERRADURA</b><br>Valores: 5, 3 ou 2.<br>Máx.: 15 | Mín.: 0</div></div>
+            <label class="doc-label">Local / Data<input v-model="sumulaDraft.identificacao.localData" class="doc-input mt-1 border-b border-slate-500 normal-case"></label><div class="grid gap-3 sm:grid-cols-3"><label class="doc-label">Nome do Árbitro / Assinatura<input v-model="sumulaDraft.responsaveis.arbitro" class="doc-input mt-1 border-b normal-case"></label><label class="doc-label">Responsável p/ Dep. de Tetarfe<input v-model="sumulaDraft.responsaveis.departamento" class="doc-input mt-1 border-b normal-case"></label><label class="doc-label">Diretor de Esportes da CBTG<input v-model="sumulaDraft.responsaveis.diretorEsporte" class="doc-input mt-1 border-b normal-case"></label></div>
+          </template>
+          <template v-else-if="activeModality.id==='bocha-campeira'">
+            <div class="grid gap-2 sm:grid-cols-3"><label class="doc-label">Súmula do jogo<input v-model="sumulaDraft.identificacao.jogo" class="doc-input mt-1 border normal-case"></label><label class="doc-label">Fase<input v-model="sumulaDraft.identificacao.fase" class="doc-input mt-1 border normal-case"></label><label class="doc-label">Cancha<input v-model="sumulaDraft.identificacao.cancha" class="doc-input mt-1 border normal-case"></label></div>
+            <table class="doc-table text-xs"><tbody><tr><th>MTG / EQUIPE A</th><th rowspan="2" class="w-12 text-xl">X</th><th>MTG / EQUIPE B</th></tr><tr><td><input v-model="sumulaDraft.teams[0].piqueteNome" class="doc-input text-center font-bold"></td><td><input v-model="sumulaDraft.teams[1].piqueteNome" class="doc-input text-center font-bold"></td></tr></tbody></table>
+            <div class="grid gap-2 sm:grid-cols-3"><label class="doc-label">Início do jogo<input v-model="sumulaDraft.identificacao.inicio" type="time" class="doc-input mt-1 border normal-case"></label><label class="doc-label">Final do jogo<input v-model="sumulaDraft.identificacao.final" type="time" class="doc-input mt-1 border normal-case"></label><label class="doc-label">Tempo de jogo<input v-model="sumulaDraft.identificacao.tempo" class="doc-input mt-1 border normal-case"></label></div>
+            <div class="grid gap-3 lg:grid-cols-2"><article v-for="(team,teamIndex) in sumulaDraft.teams" :key="teamIndex" class="space-y-2"><table class="doc-table text-xs"><thead><tr><th colspan="12">PLACAR {{ teamIndex===0?'EQUIPE A':'EQUIPE B' }}</th></tr><tr><th v-for="n in 12" :key="n">{{ n }}</th></tr></thead><tbody><tr><td v-for="(_,i) in team.placar" :key="i" class="text-center"><input v-model="team.placar[i]" type="checkbox" class="h-5 w-5 accent-red-600" @change="syncBochaCampeiraScore(team)"></td></tr></tbody></table><div class="grid grid-cols-2 gap-2"><label class="doc-label">Placar final<input :value="bochaCampeiraScore(team)" readonly class="doc-input mt-1 border text-center font-black normal-case"></label><label class="doc-label">Cor da bocha<input v-model="team.corBocha" class="doc-input mt-1 border normal-case"></label></div><table class="doc-table text-xs"><thead><tr><th>Nome Completo do Atleta / Reserva</th><th>Assinatura</th></tr></thead><tbody><tr v-for="(athlete,i) in team.athletes.slice(0,4)" :key="i"><td><input v-model="athlete.nome" class="doc-input"></td><td><input v-model="athlete.assinatura" class="doc-input"></td></tr></tbody></table><div class="grid grid-cols-2 gap-2"><label class="doc-label">Substituição — entrou<input v-model="team.substituicao.entrou" class="doc-input mt-1 border normal-case"></label><label class="doc-label">Substituição — saiu<input v-model="team.substituicao.saiu" class="doc-input mt-1 border normal-case"></label></div></article></div>
+            <label class="doc-label">Árbitro do jogo / Assinatura<input v-model="sumulaDraft.responsaveis.arbitro" class="doc-input mt-1 border normal-case"></label><label class="doc-label">Observações do árbitro<textarea v-model="sumulaDraft.observacoes" rows="3" class="doc-input mt-1 border normal-case"></textarea></label><div class="grid gap-2 sm:grid-cols-2"><label class="doc-label">Local<input v-model="sumulaDraft.identificacao.local" class="doc-input mt-1 border normal-case"></label><label class="doc-label">Data<input v-model="sumulaDraft.identificacao.data" type="date" class="doc-input mt-1 border normal-case"></label></div><div class="grid gap-2 sm:grid-cols-3"><label class="doc-label">Representante Equipe A / Rubrica<input v-model="sumulaDraft.responsaveis.representanteA" class="doc-input mt-1 border normal-case"></label><label class="doc-label">Mesário / Rubrica<input v-model="sumulaDraft.responsaveis.mesario" class="doc-input mt-1 border normal-case"></label><label class="doc-label">Representante Equipe B / Rubrica<input v-model="sumulaDraft.responsaveis.representanteB" class="doc-input mt-1 border normal-case"></label></div>
+          </template>
+          <template v-else-if="activeModality.id==='truco-amostra' || activeModality.id==='truco-cego'">
+            <div class="truco-a4">
+              <template v-for="(via,viaIndex) in ['BR','CTG / BP']" :key="via">
+                <div v-if="viaIndex" class="truco-cut"><span class="truco-cut-label">✂ CORTE AQUI</span></div>
+                <section class="truco-via">
+                  <table class="truco-via-head"><tbody><tr><td class="w-[12%]">{{ via }}</td><td>MTG/Federação: <input v-model="sumulaDraft.teams[0].piqueteNome" class="doc-input inline-block w-3/5 border-b border-black"></td><td class="text-right">MTG/Federação: <input v-model="sumulaDraft.teams[1].piqueteNome" class="doc-input inline-block w-3/5 border-b border-black"></td><td class="w-[8%] text-right">X</td></tr></tbody></table>
+                  <div class="truco-title"><div>CONFEDERAÇÃO BRASILEIRA DA TRADIÇÃO GAÚCHA - CBTG</div><div>DEPARTAMENTO DE ESPORTES</div><div>JOGOS TRADICIONALISTAS</div><div class="mt-0.5">SÚMULA DO JOGO DE {{ activeModality.id==='truco-cego'?'TRUCO CEGO':'TRUCO DE AMOSTRA' }} - MODALIDADE - TRIO</div></div>
+                  <p class="truco-note"><strong>Obs.:</strong> Confronto em melhor de 3. Duas vitórias consecutivas encerram o confronto e geram automaticamente a terceira vitória em {{ activeModality.id==='truco-cego'?'24':'30' }} × 0.</p>
+                  <table class="truco-table"><thead><tr><th class="truco-name">NOME DO TRIO</th><th class="truco-number">Nº DO TRIO</th><th class="truco-score">TENTOS MARCADOS</th><th class="truco-round">PARTIDAS</th><th class="truco-score">TENTOS MARCADOS</th><th class="truco-number">Nº DO TRIO</th><th class="truco-name">NOME DO TRIO</th></tr></thead><tbody>
+                    <tr><td rowspan="3" class="truco-name"><input v-model="sumulaDraft.teams[0].nomeComposicao" class="doc-input text-center font-bold" aria-label="Nome do trio A" @input="syncTrucoOutcome"><span class="truco-members">{{ trucoAthleteNames(sumulaDraft.teams[0]) }}</span></td><td rowspan="3"><input v-model="sumulaDraft.teams[0].numeroComposicao" class="doc-input text-center" aria-label="Número do trio A"></td><td><input v-model.number="sumulaDraft.teams[0].scores[0]" type="number" class="doc-input text-center" aria-label="Tentos do trio A na primeira partida" @input="syncTrucoOutcome"></td><th>1ª</th><td><input v-model.number="sumulaDraft.teams[1].scores[0]" type="number" class="doc-input text-center" aria-label="Tentos do trio B na primeira partida" @input="syncTrucoOutcome"></td><td rowspan="3"><input v-model="sumulaDraft.teams[1].numeroComposicao" class="doc-input text-center" aria-label="Número do trio B"></td><td rowspan="3" class="truco-name"><input v-model="sumulaDraft.teams[1].nomeComposicao" class="doc-input text-center font-bold" aria-label="Nome do trio B" @input="syncTrucoOutcome"><span class="truco-members">{{ trucoAthleteNames(sumulaDraft.teams[1]) }}</span></td></tr>
+                    <tr><td><input v-model.number="sumulaDraft.teams[0].scores[1]" type="number" class="doc-input text-center" aria-label="Tentos do trio A na segunda partida" @input="syncTrucoOutcome"></td><th>2ª</th><td><input v-model.number="sumulaDraft.teams[1].scores[1]" type="number" class="doc-input text-center" aria-label="Tentos do trio B na segunda partida" @input="syncTrucoOutcome"></td></tr>
+                    <tr><td><input v-model.number="sumulaDraft.teams[0].scores[2]" type="number" class="doc-input text-center" aria-label="Tentos do trio A na terceira partida" @input="syncTrucoOutcome"></td><th>3ª</th><td><input v-model.number="sumulaDraft.teams[1].scores[2]" type="number" class="doc-input text-center" aria-label="Tentos do trio B na terceira partida" @input="syncTrucoOutcome"></td></tr>
+                    <tr><th colspan="2" class="text-right">SOMA DOS TENTOS MARCADOS</th><th>{{ sumScores(sumulaDraft.teams[0].scores) }}</th><th>X</th><th>{{ sumScores(sumulaDraft.teams[1].scores) }}</th><th colspan="2" class="text-left">SOMA DOS TENTOS MARCADOS</th></tr><tr><th colspan="3">PLACAR</th><th>{{ trucoMatchScore(sumulaDraft) }}</th><th colspan="3">{{ trucoMatchStatus(sumulaDraft) }}</th></tr>
+                  </tbody></table>
+                  <table class="truco-result"><tbody><tr><td v-for="result in ['vencedor','perdedor']" :key="result"><div class="text-center font-bold uppercase">Trio {{ result }}</div><div class="truco-result-name">{{ sumulaDraft.resultado[result].nome || 'Aguardando apuração' }}</div><div class="truco-result-grid"><label>PARTIDAS VENCIDAS<input v-model.number="sumulaDraft.resultado[result].partidas" type="number" readonly class="doc-input border-b border-black text-center"></label><label>VITÓRIA<input v-model.number="sumulaDraft.resultado[result].vitoria" type="number" readonly class="doc-input border-b border-black text-center"></label><label>TENTOS MARCADOS<input v-model.number="sumulaDraft.resultado[result].tentos" type="number" readonly class="doc-input border-b border-black text-center"></label></div><div class="mt-2">Assinatura do Capataz Trio {{ result }}:</div><input v-model="sumulaDraft.resultado[result].assinatura" class="doc-input border-b border-black"></td></tr></tbody></table>
+                  <div class="truco-local"><strong>Local e Data:</strong><input v-model="sumulaDraft.identificacao.localData" class="doc-input inline-block w-4/5 border-b border-black"></div>
+                  <table class="truco-signatures"><tbody><tr><td><input v-model="sumulaDraft.responsaveis.arbitro" class="doc-input text-center"><div class="truco-signature-line">Nome do Árbitro / Assinatura</div></td><td><input v-model="sumulaDraft.responsaveis.departamento" class="doc-input text-center"><div class="truco-signature-line">Responsável p/ Dep. de Truco</div></td><td><input v-model="sumulaDraft.responsaveis.diretorEsporte" class="doc-input text-center"><div class="truco-signature-line">Diretor de Esportes da CBTG</div></td></tr></tbody></table>
+                </section>
+              </template>
+            </div>
+          </template>
+          <template v-else-if="activeModality.id==='bocha-48'">
+            <div class="grid gap-2 sm:grid-cols-3"><label class="doc-label">Súmula Bocha 48<input v-model="sumulaDraft.identificacao.jogo" class="doc-input mt-1 border normal-case"></label><label class="doc-label">Fase<input v-model="sumulaDraft.identificacao.fase" class="doc-input mt-1 border normal-case"></label><label class="doc-label">Jogo nº<input v-model="sumulaDraft.identificacao.jogoNumero" class="doc-input mt-1 border normal-case"></label></div>
+            <template v-for="(team,teamIndex) in sumulaDraft.teams" :key="teamIndex"><div v-if="teamIndex===1" class="border-y border-slate-500 py-1 text-center text-xs font-black">CONTRA</div><div class="grid grid-cols-[1fr_180px] gap-2"><label class="doc-label">CTG<input v-model="team.piqueteNome" class="doc-input mt-1 border normal-case"></label><label class="doc-label">Dupla<input v-model="team.nomeComposicao" class="doc-input mt-1 border normal-case"></label></div><div class="overflow-x-auto"><table class="doc-table min-w-[760px] text-xs"><thead><tr><th rowspan="3">NOME DOS ATLETAS</th><th colspan="8">ARREMESSOS PONTOS</th><th rowspan="3">TOTAL DE PONTOS</th></tr><tr><th colspan="5">1ª SÉRIE</th><th colspan="3">2ª SÉRIE</th></tr><tr><th v-for="n in 8" :key="n">{{ n }}</th></tr></thead><tbody><tr v-for="(athlete,i) in team.athletes.slice(0,2)" :key="i"><td><span class="mr-2 font-black">{{ i+1 }}</span><input v-model="athlete.nome" class="doc-input inline-block w-4/5"></td><td v-for="(_,scoreIndex) in athlete.scores" :key="scoreIndex"><input v-model.number="athlete.scores[scoreIndex]" type="number" class="doc-input w-10 text-center"></td><td class="text-center font-black">{{ sumScores(athlete.scores) }}</td></tr><tr><th>VALORES DAS BOCHAS</th><td colspan="2">FRENTE — 2</td><td colspan="2">ESQUERDA — 4</td><td>DIREITA — 6</td><td>ATRÁS — 8</td><td>BOLIM — 12</td><th>TOTAL GERAL</th><th>{{ teamTotal(team) }}</th></tr></tbody></table></div></template>
+            <div class="grid gap-4 sm:grid-cols-2"><article v-for="result in ['vencedora','perdedora']" :key="result" class="border border-slate-600 p-3"><h4 class="text-center text-sm font-black uppercase">Dupla {{ result }}</h4><input v-model="sumulaDraft.resultado[result].nome" class="doc-input mt-2 border text-center font-bold"><label class="doc-label mt-2 block">Total geral<input v-model.number="sumulaDraft.resultado[result].total" type="number" class="doc-input mt-1 border text-center normal-case"></label><label class="doc-label mt-2 block">Assinatura Capataz<input v-model="sumulaDraft.resultado[result].assinatura" class="doc-input mt-1 border-b normal-case"></label></article></div><div class="grid gap-2 sm:grid-cols-3"><label class="doc-label">Juiz<input v-model="sumulaDraft.responsaveis.arbitro" class="doc-input mt-1 border-b normal-case"></label><label class="doc-label">Data<input v-model="sumulaDraft.identificacao.data" type="date" class="doc-input mt-1 border-b normal-case"></label><label class="doc-label">Diretor Esporte CTG<input v-model="sumulaDraft.responsaveis.diretorEsporte" class="doc-input mt-1 border-b normal-case"></label></div>
+          </template>
+          <div v-if="sumulaAlerts.length" class="sumula-alerts rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900"><p class="font-black uppercase"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Salvará como COM_ALERTA</p><ul class="mt-2 list-disc pl-5"><li v-for="alerta in sumulaAlerts" :key="alerta">{{ alerta }}</li></ul></div><div v-else class="sumula-alerts rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-bold text-emerald-800"><i class="fa-solid fa-circle-check mr-2"></i>Regras homologadas conferidas: salvará como VALIDO.</div><div class="sumula-actions flex justify-between border-t border-slate-200 pt-4"><button type="button" class="rounded-xl bg-slate-200 px-4 py-2 text-sm font-bold" @click="backToComposition">Voltar à composição</button><div class="flex gap-2"><button type="button" class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold" @click="printSumula"><i class="fa-solid fa-print mr-2"></i>Imprimir</button><button type="submit" :class="['rounded-xl px-5 py-2 text-sm font-black text-slate-950',activeModality.button]">Salvar súmula</button></div></div>
+        </form>
+      </div>
+    </div>
+    <div v-else-if="overlay.kind==='rankingDetails'" class="space-y-4"><div class="rounded-xl border border-amber-400/15 bg-amber-400/[.04] p-3 text-xs leading-5 text-amber-200/80"><i class="fa-solid fa-circle-info mr-2"></i>Exclua somente a súmula desejada. A classificação será recalculada imediatamente.</div><article v-for="item in rankingDetailSumulas" :key="item.id" class="flex flex-col gap-3 rounded-2xl border border-white/[.08] bg-white/[.025] p-4 sm:flex-row sm:items-center"><div class="min-w-0 flex-1"><p class="text-sm font-extrabold text-white">{{ item.participantes }}</p><p class="mt-1 text-xs text-slate-500">{{ item.data }} · {{ item.total }} pontos · {{ item.status }}</p></div><button class="rounded-xl bg-red-500 px-3 py-2 text-xs font-extrabold text-white hover:bg-red-400" @click="askDeleteSumula(item.raw)"><i class="fa-solid fa-trash mr-2"></i>Excluir súmula</button></article><p v-if="!rankingDetailSumulas.length" class="rounded-xl border border-dashed border-white/10 p-8 text-center text-sm text-slate-500">Nenhuma súmula vinculada.</p></div>
+  </app-overlay>
 
-    <script>
-        // State storage
-        let piquetesData = JSON.parse(localStorage.getItem('sae_piquetes') || '[]');
-        let sumulasData = JSON.parse(localStorage.getItem('sae_sumulas') || '[]');
+  <transition name="fade"><div v-if="confirm.open" class="fixed inset-0 z-[80] grid place-items-center bg-slate-950/80 p-4 backdrop-blur-sm" @click.self="confirm.open=false"><transition name="modal" appear><div class="glass w-full max-w-md rounded-2xl p-5"><div class="grid h-11 w-11 place-items-center rounded-xl bg-red-400/10 text-red-400"><i class="fa-solid fa-trash"></i></div><h3 class="mt-4 text-lg font-extrabold text-white">{{ confirm.type==='sumula'?'Excluir súmula definitivamente?':'Excluir registro?' }}</h3><p class="mt-2 text-sm leading-6 text-slate-400">{{ confirm.type==='sumula'?'Somente a súmula selecionada será removida do Sheets e dos rankings. Esta ação não pode ser desfeita.':'Esta ação remove o item da visualização atual. Você poderá cadastrar novamente se necessário.' }}</p><div class="mt-6 flex justify-end gap-2"><button class="rounded-xl bg-white/5 px-4 py-2 text-sm font-bold text-slate-300" @click="confirm.open=false">Cancelar</button><button class="rounded-xl bg-red-500 px-4 py-2 text-sm font-extrabold text-white" @click="removeConfirmed">Excluir</button></div></div></transition></div></transition>
+  <transition name="fade"><div v-if="toast.open" class="fixed bottom-4 left-4 right-4 z-[100] sm:left-auto sm:w-[380px]"><div class="glass flex items-start gap-3 rounded-2xl p-4"><div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-400/10 text-emerald-400"><i class="fa-solid fa-circle-check"></i></div><div><p class="text-sm font-extrabold text-white">{{ toast.title }}</p><p class="mt-1 text-xs leading-5 text-slate-400">{{ toast.message }}</p></div><button class="ml-auto text-slate-500" @click="toast.open=false"><i class="fa-solid fa-xmark"></i></button></div></div></transition>
+</div>
 
-        // Configuration mapping for colors & titles
-        const MODALIDADES_CONFIG = {
-            'inscricao': { title: 'Formulário de Inscrição de Equipes', badge: 'SAE - Gestão', color: 'bg-slate-800' },
-            'tava': { title: 'Súmula de Tava', badge: 'Tava (bg-gray)', color: 'bg-gray-600' },
-            'bocha-campeira': { title: 'Súmula de Bocha Campeira', badge: 'Bocha Campeira (bg-red)', color: 'bg-red-600' },
-            'tetarfe': { title: 'Súmula de Tetarfe', badge: 'Tetarfe (bg-yellow)', color: 'bg-yellow-500' },
-            'truco-amostra': { title: 'Súmula de Truco de Amostra', badge: 'Truco Amostra (bg-green)', color: 'bg-green-600' },
-            'truco-cego': { title: 'Súmula de Truco Cego', badge: 'Truco Cego (bg-blue)', color: 'bg-blue-600' },
-            'bocha-48': { title: 'Súmula de Bocha 48', badge: 'Bocha 48 (bg-indigo)', color: 'bg-indigo-600' }
-        };
+<template id="overlay-template"><transition name="fade"><div v-if="open" class="fixed inset-0 z-[70] bg-slate-950/80 backdrop-blur-sm" @click.self="$emit('close')"><transition :name="mode==='drawer'?'drawer':'modal'" appear><section :class="mode==='drawer'?'absolute inset-y-0 right-0 flex w-full max-w-xl flex-col border-l border-white/10 bg-[#0b1727] shadow-2xl':mode==='full'?'glass absolute left-1/2 top-1/2 flex max-h-[94vh] w-[calc(100%-1rem)] max-w-6xl -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl':'glass absolute left-1/2 top-1/2 flex max-h-[90vh] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl'"><header class="flex items-start gap-3 border-b border-white/10 p-5"><div class="min-w-0"><h2 class="text-lg font-extrabold text-white">{{ title }}</h2><p class="mt-1 text-xs text-slate-500">{{ subtitle }}</p></div><button class="ml-auto grid h-9 w-9 place-items-center rounded-xl bg-white/5 text-slate-400" aria-label="Fechar" @click="$emit('close')"><i class="fa-solid fa-xmark"></i></button></header><div class="flex-1 overflow-y-auto p-5"><slot></slot></div><footer v-if="showFooter" class="safe-bottom flex justify-end gap-2 border-t border-white/10 p-4"><button class="rounded-xl bg-white/5 px-4 py-2.5 text-sm font-bold text-slate-300" :disabled="busy" @click="$emit('close')">Cancelar</button><button class="min-w-28 rounded-xl bg-emerald-400 px-4 py-2.5 text-sm font-extrabold text-slate-950 disabled:opacity-60" :disabled="busy" @click="$emit('save')"><span v-if="busy" class="google-loader"><i></i><i></i><i></i><i></i></span><span v-else>Salvar</span></button></footer></section></transition></div></transition></template>
 
-        // Navigation Controller
-        function navTo(sectionId) {
-            // Hide all sections
-            document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
-            
-            // Show target section
-            const target = document.getElementById(`sec-${sectionId}`);
-            if (target) {
-                target.classList.remove('hidden');
-            }
+<template id="data-list-template"><div class="glass overflow-hidden rounded-2xl"><div class="flex flex-col gap-3 border-b border-white/10 p-4 sm:flex-row sm:items-center"><div class="relative flex-1"><i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-600"></i><input v-model="query" class="w-full rounded-xl border border-white/10 bg-slate-950/40 py-2.5 pl-9 pr-3 text-sm text-white" placeholder="Buscar por piquete, capataz ou contato"></div><span class="text-xs font-bold text-slate-500">{{ filtered.length }} registros</span></div><div v-if="!filtered.length" class="grid min-h-64 place-items-center p-6 text-center"><div><div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white/5 text-slate-500"><i class="fa-solid fa-inbox"></i></div><p class="mt-3 text-sm font-bold text-slate-300">Nenhuma inscrição encontrada</p><p class="mt-1 text-xs text-slate-500">Cadastre o primeiro piquete e seus integrantes.</p></div></div><div v-else class="overflow-x-auto"><table class="responsive-table w-full text-left"><thead class="bg-white/[.025] text-[10px] uppercase tracking-wider text-slate-500"><tr><th class="px-5 py-3">Entidade / Piquete</th><th class="px-5 py-3">Capataz</th><th class="px-5 py-3">Contato</th><th class="px-5 py-3 text-right">Ações</th></tr></thead><tbody class="divide-y divide-white/[.06]"><tr v-for="row in filtered" :key="row.id" class="transition hover:bg-white/[.025]"><td data-label="Piquete" class="px-5 py-4 text-sm font-bold text-white">{{ row.nome }}</td><td data-label="Capataz" class="px-5 py-4 text-sm text-slate-400">{{ row.capataz }}</td><td data-label="Contato" class="px-5 py-4 text-sm text-slate-400">{{ row.contato || "Não informado" }}</td><td data-label="Ações" class="actions px-5 py-4"><div class="flex justify-end gap-1"><button class="grid h-9 w-9 place-items-center rounded-lg bg-white/5 text-slate-400 hover:text-emerald-300" aria-label="Editar" @click="$emit('edit',row,type)"><i class="fa-solid fa-pen text-xs"></i></button><button class="grid h-9 w-9 place-items-center rounded-lg bg-red-400/[.06] text-red-400 hover:bg-red-400/10" aria-label="Excluir" @click="$emit('remove',row,type)"><i class="fa-solid fa-trash text-xs"></i></button></div></td></tr></tbody></table></div></div></template>
 
-            // Update Active Buttons
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-slate-800', 'text-white'));
-            const activeBtn = document.getElementById(`btn-nav-${sectionId}`);
-            if (activeBtn) {
-                activeBtn.classList.add('bg-slate-800', 'text-white');
-            }
-
-            // Update Topbar Badge and Title
-            const cfg = MODALIDADES_CONFIG[sectionId] || MODALIDADES_CONFIG['inscricao'];
-            document.getElementById('current-title').textContent = cfg.title;
-            const topBadge = document.getElementById('top-badge');
-            topBadge.textContent = cfg.badge;
-            topBadge.className = `px-2.5 py-0.5 rounded-full text-xs font-bold text-white uppercase tracking-wider ${cfg.color}`;
-
-            // Mobile menu collapse
-            if (window.innerWidth < 768) {
-                toggleSidebar();
-            }
-        }
-
-        // Toggle Sidebar Drawer (Mobile)
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebar-overlay');
-            sidebar.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden');
-        }
-
-        // Toast Notification System
-        function showToast(title, message, isError = false) {
-            const toast = document.getElementById('toast');
-            const toastBg = document.getElementById('toast-bg');
-            const toastTitle = document.getElementById('toast-title');
-            const toastMessage = document.getElementById('toast-message');
-            const toastIcon = document.getElementById('toast-icon');
-
-            toastTitle.textContent = title;
-            toastMessage.textContent = message;
-
-            if (isError) {
-                toastBg.className = 'bg-red-900 text-white px-4 py-3 rounded-lg shadow-xl flex items-center gap-3 border border-red-700';
-                toastIcon.className = 'fa-solid fa-circle-xmark text-red-300 text-lg';
-            } else {
-                toastBg.className = 'bg-slate-900 text-white px-4 py-3 rounded-lg shadow-xl flex items-center gap-3 border border-slate-700';
-                toastIcon.className = 'fa-solid fa-circle-check text-emerald-400 text-lg';
-            }
-
-            toast.classList.remove('translate-y-[-100px]', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-[-100px]', 'opacity-0');
-            }, 3000);
-        }
-
-        // Save Inscrição Form Action (Double-click protection & local storage)
-        function salvarInscricao(event) {
-            event.preventDefault();
-            const btn = document.getElementById('btn-save-inscricao');
-            const spinner = document.getElementById('btn-save-inscricao-spinner');
-
-            // Double click prevention lock
-            btn.disabled = true;
-            spinner.classList.remove('hidden');
-
-            const piquete = {
-                id: Date.now(),
-                nome: document.getElementById('piquete_nome').value,
-                capataz: document.getElementById('capataz_nome').value,
-                atletas: [
-                    document.getElementById('atleta_1').value,
-                    document.getElementById('atleta_2').value,
-                    document.getElementById('atleta_3').value,
-                    document.getElementById('atleta_4').value,
-                    document.getElementById('atleta_5').value
-                ].filter(Boolean)
-            };
-
-            setTimeout(() => {
-                piquetesData.unshift(piquete);
-                localStorage.setItem('sae_piquetes', JSON.stringify(piquetesData));
-                renderPiquetesTable();
-
-                document.getElementById('form-inscricao').reset();
-                showToast('Inscrição Salva!', `Piquete "${piquete.nome}" registrado com sucesso.`);
-
-                btn.disabled = false;
-                spinner.classList.add('hidden');
-            }, 600);
-        }
-
-        // Render registered Piquetes table
-        function renderPiquetesTable() {
-            const tbody = document.getElementById('tbl-piquetes-body');
-            const count = document.getElementById('count-piquetes');
-
-            count.textContent = `${piquetesData.length} Registros`;
-
-            if (piquetesData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-gray-400">Nenhum piquete cadastrado ainda.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = piquetesData.map(p => `
-                <tr class="hover:bg-gray-50">
-                    <td class="p-3 font-bold text-gray-900">${p.nome}</td>
-                    <td class="p-3 font-medium">${p.capataz}</td>
-                    <td class="p-3 text-xs">
-                        <div class="flex flex-wrap gap-1">
-                            ${p.atletas.map(a => `<span class="bg-gray-200 text-gray-700 px-1.5 py-0.5 rounded">${a}</span>`).join('')}
-                        </div>
-                    </td>
-                    <td class="p-3 text-right">
-                        <button onclick="deletarPiquete(${p.id})" class="text-red-600 hover:text-red-800 p-1">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function deletarPiquete(id) {
-            piquetesData = piquetesData.filter(p => p.id !== id);
-            localStorage.setItem('sae_piquetes', JSON.stringify(piquetesData));
-            renderPiquetesTable();
-            showToast('Piquete Removido', 'Registro excluído do banco de dados local.');
-        }
-
-        // Generic Save Handler for Súmulas
-        function salvarSumula(modalidade, event) {
-            event.preventDefault();
-            const submitBtn = event.target.querySelector('button[type="submit"]');
-            if (submitBtn) submitBtn.disabled = true;
-
-            showToast('Súmula Gravada!', `Súmula de ${modalidade} salva e pronta para impressão/arquivamento.`);
-
-            setTimeout(() => {
-                if (submitBtn) submitBtn.disabled = false;
-            }, 1000);
-        }
-
-        // Calculations for Tava
-        function calcTavaTotal(inputElement) {
-            for (let a = 1; a <= 4; a++) {
-                let sum = 0;
-                const p1Inputs = document.querySelectorAll(`.tava-p1-${a}`);
-                const p2Inputs = document.querySelectorAll(`.tava-p2-${a}`);
-
-                p1Inputs.forEach(inp => sum += Number(inp.value || 0));
-                p2Inputs.forEach(inp => sum += Number(inp.value || 0));
-
-                const totSpan = document.getElementById(`tava-tot-${a}`);
-                if (totSpan) totSpan.textContent = sum;
-            }
-
-            let grandTotal = 0;
-            for (let a = 1; a <= 4; a++) {
-                grandTotal += Number(document.getElementById(`tava-tot-${a}`).textContent || 0);
-            }
-            document.getElementById('tava-total-geral').textContent = grandTotal;
-        }
-
-        // Calculations for Tetarfe
-        function calcTetarfeAthlete(athleteNum) {
-            const tejo = Array.from(document.querySelectorAll(`.tet-a${athleteNum}-tejo`)).reduce((a, b) => a + Number(b.value || 0), 0);
-            const tava = Array.from(document.querySelectorAll(`.tet-a${athleteNum}-tava`)).reduce((a, b) => a + Number(b.value || 0), 0);
-            const argola = Array.from(document.querySelectorAll(`.tet-a${athleteNum}-argola`)).reduce((a, b) => a + Number(b.value || 0), 0);
-            const ferradura = Array.from(document.querySelectorAll(`.tet-a${athleteNum}-ferradura`)).reduce((a, b) => a + Number(b.value || 0), 0);
-
-            document.getElementById(`tet-tot-a${athleteNum}-tejo`).textContent = tejo;
-            document.getElementById(`tet-tot-a${athleteNum}-tava`).textContent = tava;
-            document.getElementById(`tet-tot-a${athleteNum}-argola`).textContent = argola;
-            document.getElementById(`tet-tot-a${athleteNum}-ferradura`).textContent = ferradura;
-
-            const totalAthlete = tejo + tava + argola + ferradura;
-            document.getElementById(`tet-tot-a${athleteNum}-geral`).textContent = totalAthlete;
-            document.getElementById(`summary-tet-a${athleteNum}`).textContent = totalAthlete;
-
-            // Calc Team Summary
-            let teamTotal = 0;
-            for (let i = 1; i <= 4; i++) {
-                teamTotal += Number(document.getElementById(`summary-tet-a${i}`).textContent || 0);
-            }
-            document.getElementById('summary-tet-equipe').textContent = teamTotal;
-        }
-
-        // Calculations for Truco (Amostra / Cego)
-        function calcTruco(prefix) {
-            const a1 = Number(document.getElementById(`${prefix}-a-p1`).value || 0);
-            const a2 = Number(document.getElementById(`${prefix}-a-p2`).value || 0);
-            const a3 = Number(document.getElementById(`${prefix}-a-p3`).value || 0);
-            document.getElementById(`${prefix}-tot-a`).textContent = a1 + a2 + a3;
-
-            const b1 = Number(document.getElementById(`${prefix}-b-p1`).value || 0);
-            const b2 = Number(document.getElementById(`${prefix}-b-p2`).value || 0);
-            const b3 = Number(document.getElementById(`${prefix}-b-p3`).value || 0);
-            document.getElementById(`${prefix}-tot-b`).textContent = b1 + b2 + b3;
-        }
-
-        // Calculations for Bocha 48
-        function calcBocha48(duplaNum) {
-            for (let a = 1; a <= 2; a++) {
-                const inputs = document.querySelectorAll(`.b48-d${duplaNum}-a${a}`);
-                let sum = 0;
-                inputs.forEach(i => sum += Number(i.value || 0));
-                document.getElementById(`b48-tot-d${duplaNum}-a${a}`).textContent = sum;
-            }
-
-            const a1 = Number(document.getElementById(`b48-tot-d${duplaNum}-a1`).textContent || 0);
-            const a2 = Number(document.getElementById(`b48-tot-d${duplaNum}-a2`).textContent || 0);
-            document.getElementById(`b48-tot-dupla${duplaNum}`).textContent = a1 + a2;
-        }
-
-        // App initialization
-        window.onload = function() {
-            renderPiquetesTable();
-        };
-    </script>
+<script>
+const { createApp, ref, reactive, computed, onMounted, onBeforeUnmount } = Vue;
+const AppOverlay={template:'#overlay-template',props:{open:Boolean,title:String,subtitle:String,mode:{type:String,default:'drawer'},busy:Boolean,showFooter:{type:Boolean,default:true}},emits:['close','save']};
+const DataList={template:'#data-list-template',props:{rows:{type:Array,default:()=>[]},type:String},emits:['edit','remove'],setup(props){const query=ref('');const filtered=computed(()=>{const term=query.value.toLocaleLowerCase('pt-BR');return props.rows.filter(row=>JSON.stringify(row).toLocaleLowerCase('pt-BR').includes(term));});return{query,filtered};}};
+createApp({components:{AppOverlay,DataList},setup(){
+  const currentView=ref('dashboard'),sidebarOpen=ref(false),isLoading=ref(false),selectedRankingModality=ref('tava'),rankingContext=ref(null);
+  const pageTitles={dashboard:'Visão geral do evento',piquetes:'Piquetes e entidades',atletas:'Atletas',equipes:'Equipes e composições',inscricoes:'Inscrições',modalidades:'Modalidades e súmulas',rankingModalidade:'Ranking por modalidade',rankingGeral:'Ranking geral',configuracoes:'Configurações'};
+  const makeId=()=>crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const newAthlete=(tipo='Titular')=>({key:makeId(),id:'',nome:'',tipo,modalidades:[]});
+  const normalizeAthletes=value=>Array.isArray(value)?value.map((a,index)=>{const athlete=typeof a==='string'?{id:`legacy-${index}`,nome:a,tipo:index===4?'Reserva':'Titular'}:a;return{...athlete,key:athlete.key||athlete.id||makeId(),modalidades:Array.isArray(athlete.modalidades)?athlete.modalidades:[]};}):[];
+  const normalizeRegistration=p=>({...p,contato:p.contato||'',atletas:normalizeAthletes(p.atletas)});
+  const piquetes=ref(JSON.parse(localStorage.getItem('sae_piquetes')||'[]').map(normalizeRegistration));
+  const inscricoes=ref(JSON.parse(localStorage.getItem('sae_inscricoes')||'[]'));
+  const modalidades=reactive([
+    {id:'tava',nome:'Tava',formato:'Equipe · referência de 4 atletas',equipes:1,recomendados:4,registros:0,icon:'fa-solid fa-bullseye',tint:'bg-slate-400/10 text-slate-300',text:'text-slate-300',progress:'bg-slate-300',selection:'bg-slate-300/10 text-slate-200',summary:'border-slate-300/20 bg-slate-300/[.04] text-slate-300',button:'bg-slate-300',header:'border-slate-600 bg-slate-100',table:'bg-slate-700 text-white'},
+    {id:'bocha-campeira',nome:'Bocha Campeira',formato:'Confronto · referência de trio',equipes:2,recomendados:3,registros:0,icon:'fa-solid fa-circle',tint:'bg-red-400/10 text-red-400',text:'text-red-400',progress:'bg-red-400',selection:'bg-red-400/10 text-red-300',summary:'border-red-400/20 bg-red-400/[.04] text-red-400',button:'bg-red-400',header:'border-red-600 bg-red-50',table:'bg-red-700 text-white'},
+    {id:'tetarfe',nome:'Tetarfe',formato:'Equipe · referência de 4 atletas',equipes:1,recomendados:4,registros:0,icon:'fa-solid fa-shapes',tint:'bg-amber-400/10 text-amber-400',text:'text-amber-400',progress:'bg-amber-400',selection:'bg-amber-400/10 text-amber-300',summary:'border-amber-400/20 bg-amber-400/[.04] text-amber-400',button:'bg-amber-300',header:'border-amber-500 bg-amber-50',table:'bg-amber-500 text-slate-900'},
+    {id:'truco-amostra',nome:'Truco de Amostra',formato:'Confronto · referência de trio',equipes:2,recomendados:3,nomeTrio:true,registros:0,icon:'fa-solid fa-diamond',tint:'bg-emerald-400/10 text-emerald-400',text:'text-emerald-400',progress:'bg-emerald-400',selection:'bg-emerald-400/10 text-emerald-300',summary:'border-emerald-400/20 bg-emerald-400/[.04] text-emerald-400',button:'bg-emerald-400',header:'border-emerald-600 bg-emerald-50',table:'bg-emerald-700 text-white'},
+    {id:'truco-cego',nome:'Truco Cego',formato:'Confronto · referência de trio',equipes:2,recomendados:3,nomeTrio:true,registros:0,icon:'fa-solid fa-eye-slash',tint:'bg-blue-400/10 text-blue-400',text:'text-blue-400',progress:'bg-blue-400',selection:'bg-blue-400/10 text-blue-300',summary:'border-blue-400/20 bg-blue-400/[.04] text-blue-400',button:'bg-blue-400',header:'border-blue-600 bg-blue-50',table:'bg-blue-700 text-white'},
+    {id:'bocha-48',nome:'Bocha 48',formato:'Confronto · referência de dupla',equipes:2,recomendados:2,registros:0,icon:'fa-solid fa-bowling-ball',tint:'bg-indigo-400/10 text-indigo-400',text:'text-indigo-400',progress:'bg-indigo-400',selection:'bg-indigo-400/10 text-indigo-300',summary:'border-indigo-400/20 bg-indigo-400/[.04] text-indigo-400',button:'bg-indigo-400',header:'border-indigo-600 bg-indigo-50',table:'bg-indigo-700 text-white'}
+  ]);
+  const sumulas=ref(JSON.parse(localStorage.getItem('sae_sumulas')||'[]'));
+  const refreshModalityCounters=()=>modalidades.forEach(modality=>{modality.registros=sumulas.value.filter(sumula=>sumula.modalidadeId===modality.id&&sumula.status!=='CANCELADO').length;});refreshModalityCounters();
+  const navigation=computed(()=>[{label:'Principal',items:[{id:'dashboard',label:'Dashboard',icon:'fa-solid fa-chart-pie'}]},{label:'Gestão',items:[{id:'inscricoes',label:'Inscrições',icon:'fa-solid fa-clipboard-check',count:piquetes.value.length}]},{label:'Competição',items:[{id:'modalidades',label:'Modalidades',icon:'fa-solid fa-trophy',count:6},{id:'rankingModalidade',label:'Ranking modalidade',icon:'fa-solid fa-medal'},{id:'rankingGeral',label:'Ranking geral',icon:'fa-solid fa-ranking-star'}]},{label:'Sistema',items:[{id:'configuracoes',label:'Configurações',icon:'fa-solid fa-gear'}]}]);
+  const metricCards=computed(()=>[{label:'Piquetes',value:piquetes.value.length,icon:'fa-solid fa-flag',tint:'bg-emerald-400/10 text-emerald-400'},{label:'Atletas',value:piquetes.value.reduce((s,p)=>s+p.atletas.length,0),icon:'fa-solid fa-person-running',tint:'bg-blue-400/10 text-blue-400'},{label:'Inscrições',value:piquetes.value.length,icon:'fa-solid fa-clipboard-check',tint:'bg-amber-400/10 text-amber-400'},{label:'Súmulas lançadas',value:sumulas.value.length,icon:'fa-solid fa-file-signature',tint:'bg-violet-400/10 text-violet-400'}]);
+  const blankAthletes=()=>Array.from({length:4},()=>newAthlete());
+  const overlay=reactive({open:false,kind:'',title:'',subtitle:'',mode:'drawer',busy:false,editingId:null});const wizardStep=ref(1);const registration=reactive({nome:'',capataz:'',contato:'',atletas:blankAthletes()});const sumulaStep=ref(1),activeModality=ref(modalidades[0]),sumulaTeams=ref([]),sumulaDraft=reactive({id:'',modalidadeId:'',teams:[]});const confirm=reactive({open:false,row:null,type:''});const toast=reactive({open:false,title:'',message:'',timer:null});
+  const navigate=id=>{currentView.value=id;sidebarOpen.value=false;window.scrollTo({top:0,behavior:'smooth'});};
+  const openRanking=modality=>{selectedRankingModality.value=modality.id;navigate('rankingModalidade');};
+  const openRegistration=(row=null)=>{wizardStep.value=1;const athletes=row?.atletas?.length?normalizeAthletes(row.atletas):blankAthletes();Object.assign(registration,{nome:row?.nome||'',capataz:row?.capataz||'',contato:row?.contato||'',atletas:athletes});Object.assign(overlay,{open:true,kind:'registration',editingId:row?.id||null,title:row?'Editar inscrição':'Nova inscrição',subtitle:'Entidade, responsável e integrantes em um único cadastro.',mode:'drawer'});};
+  const openSumula=modality=>{activeModality.value=modality;sumulaStep.value=1;sumulaTeams.value=Array.from({length:modality.equipes},()=>({piqueteId:'',nomeComposicao:'',atletas:[]}));Object.assign(overlay,{open:true,kind:'sumula',editingId:null,title:`Súmula do Jogo de ${modality.nome}`,subtitle:'Monte a composição com liberdade; as quantidades são apenas sugestões.',mode:'drawer'});};
+  const closeOverlay=()=>{if(!overlay.busy)overlay.open=false;};
+  const showToast=(title,message)=>{clearTimeout(toast.timer);Object.assign(toast,{open:true,title,message});toast.timer=setTimeout(()=>toast.open=false,3500);};
+  const gasCall=(method,...args)=>new Promise((resolve,reject)=>{if(!(window.google?.script?.run)){resolve(null);return;}const runner=google.script.run.withSuccessHandler(response=>response?.ok===false?reject(new Error(response.error?.message||'Falha no servidor.')):resolve(response)).withFailureHandler(error=>reject(new Error(error?.message||String(error))));runner[method](...args);});
+  const hydrateFromBackend=async()=>{try{const response=await gasCall('getBootstrapData');if(!response?.data)return;piquetes.value=(response.data.entidades||[]).map(normalizeRegistration);sumulas.value=response.data.sumulas||sumulas.value;refreshModalityCounters();persist();}catch(error){showToast('Modo local ativo',error.message||'Os dados locais continuam disponíveis.');}};
+  const persist=()=>{localStorage.setItem('sae_piquetes',JSON.stringify(piquetes.value));localStorage.setItem('sae_inscricoes',JSON.stringify(inscricoes.value));localStorage.setItem('sae_sumulas',JSON.stringify(sumulas.value));};
+  const filledAthletes=computed(()=>registration.atletas.filter(a=>a.nome));
+  const registrationStepTitle=computed(()=>['Nova entidade / piquete','Integrantes','Modalidades dos integrantes','Revise os lançamentos'][wizardStep.value-1]);
+  const addAthlete=()=>registration.atletas.push(newAthlete());
+  const removeAthlete=index=>registration.atletas.splice(index,1);
+  const nextRegistrationStep=async()=>{if(wizardStep.value===1&&(!registration.nome||!registration.capataz))return showToast('Revise a etapa','Informe o piquete e o capataz responsável.');if(wizardStep.value===2&&!filledAthletes.value.length)return showToast('Revise a etapa','Informe pelo menos um integrante.');if(wizardStep.value<4){wizardStep.value++;return;}overlay.busy=true;const payload={id:overlay.editingId||'',nome:registration.nome,capataz:registration.capataz,contato:registration.contato,atletas:filledAthletes.value.map(a=>({id:a.id||makeId(),nome:a.nome,tipo:a.tipo,modalidades:[...a.modalidades]}))};try{const remote=await gasCall('saveRegistration',payload);const saved=normalizeRegistration(remote?.data||{...payload,id:payload.id||makeId()});const index=piquetes.value.findIndex(p=>p.id===saved.id);index>=0?piquetes.value.splice(index,1,saved):piquetes.value.unshift(saved);persist();overlay.open=false;showToast('Inscrição salva','Contato, integrantes e modalidades foram vinculados.');}catch(error){showToast('Não foi possível salvar',error.message||'Revise a conexão e tente novamente.');}finally{overlay.busy=false;}};
+  const athleteList=piquete=>piquete?.atletas||[];
+  const availablePiquetes=teamIndex=>{const used=sumulaTeams.value.filter((_,index)=>index!==teamIndex).map(team=>String(team.piqueteId)).filter(Boolean);return piquetes.value.filter(p=>!used.includes(String(p.id)));};
+  const selectedTeams=computed(()=>sumulaTeams.value.map(team=>({...team,piquete:piquetes.value.find(p=>String(p.id)===String(team.piqueteId))||null})));
+  const sumulaStepTitle=computed(()=>sumulaStep.value===1?`Selecione ${activeModality.value.equipes===1?'a equipe / piquete':'os piquetes da disputa'}`:'Revise a composição automática');
+  const eligibleAthletes=team=>athleteList(team.piquete).filter(athlete=>athlete.modalidades?.includes(activeModality.value.id));
+  const eligibleAthleteNames=team=>eligibleAthletes(team).map(athlete=>athlete.nome);
+  const emptyScores=count=>Array.from({length:count},()=>0);
+  const selectedToDraftAthletes=team=>{const selected=eligibleAthletes(team).sort((a,b)=>(a.tipo==='Reserva')-(b.tipo==='Reserva')).map(a=>({id:a.id,nome:a.nome,tipo:a.tipo,assinatura:''}));const baseRequired=activeModality.value.id==='bocha-campeira'?4:activeModality.value.recomendados,required=Math.max(baseRequired,selected.length);while(selected.length<required)selected.push({id:'',nome:'',tipo:selected.length===3&&activeModality.value.id==='bocha-campeira'?'Reserva':'Titular',assinatura:''});return selected.map(a=>activeModality.value.id==='tetarfe'?{...a,games:[{nome:'TEJO',scores:emptyScores(10)},{nome:'TAVA',scores:emptyScores(4)},{nome:'ARGOLA',scores:emptyScores(3)},{nome:'FERRADURA',scores:emptyScores(3)}]}:{...a,scores:emptyScores(activeModality.value.id==='tava'?10:activeModality.value.id==='bocha-48'?8:3)});};
+  const buildSumulaDraft=()=>({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),modalidadeId:activeModality.value.id,criadoEm:new Date().toISOString(),identificacao:{mtg:'',jogo:'',fase:'',cancha:'',jogoNumero:'',inicio:'',final:'',tempo:'',local:'',data:'',localData:''},responsaveis:{arbitro:'',capitao:'',diretorEsporte:'',departamento:'',mesario:'',representanteA:'',representanteB:''},observacoes:'',resultado:{vencedor:{nome:'',partidas:0,vitoria:0,tentos:0,assinatura:''},perdedor:{nome:'',partidas:0,vitoria:0,tentos:0,assinatura:''},vencedora:{nome:'',total:0,assinatura:''},perdedora:{nome:'',total:0,assinatura:''}},teams:selectedTeams.value.map(team=>({piqueteId:team.piquete?.id||'',piqueteNome:team.piquete?.nome||'',nomeComposicao:team.nomeComposicao||'',numeroComposicao:'',scores:emptyScores(3),placar:emptyScores(12),placarFinal:'',corBocha:'',substituicao:{entrou:'',saiu:''},athletes:selectedToDraftAthletes(team)}))});
+  const finishSumulaSetup=()=>{Object.assign(sumulaDraft,buildSumulaDraft());Object.assign(overlay,{kind:'sumulaForm',mode:'full',title:`Súmula do Jogo de ${activeModality.value.nome}`,subtitle:'Dados sugeridos pela composição e totalmente editáveis.'});};
+  const backToComposition=()=>Object.assign(overlay,{kind:'sumula',mode:'drawer'});
+  const sumScores=scores=>scores.reduce((total,value)=>total+Number(value||0),0);
+  const athleteTotal=athlete=>athlete.games?athlete.games.reduce((total,game)=>total+sumScores(game.scores),0):sumScores(athlete.scores||[]);
+  const teamTotal=team=>(team?.athletes||[]).reduce((total,athlete)=>total+athleteTotal(athlete),0);
+  const topThreeTotal=team=>(team?.athletes||[]).map(athleteTotal).sort((a,b)=>b-a).slice(0,3).reduce((total,value)=>total+value,0);
+  const validTavaValues=new Set([2,1,0,-1,-2]), validTetarfe={TEJO:new Set([5,4,3,2,-1,0]),TAVA:validTavaValues,ARGOLA:new Set([5,3,1,0]),FERRADURA:new Set([5,3,2,0])};
+  const numericScores=scores=>(scores||[]).map(value=>Number(value||0));
+  const countWins=(scoresA=[],scoresB=[])=>scoresA.reduce((wins,value,index)=>wins+(Number(value||0)>Number(scoresB[index]||0)?1:0),0);
+  const trucoAthleteNames=team=>(team?.athletes||[]).map(athlete=>athlete.nome?.trim()).filter(Boolean).join(', ');
+  const trucoTeamLabel=team=>{const trio=team?.nomeComposicao?.trim(),athletes=trucoAthleteNames(team);return[trio,athletes].filter(Boolean).join(' — ')||team?.piqueteNome||'';};
+  const trucoPlayedGames=sumula=>(sumula?.teams?.[0]?.scores||[]).reduce((total,value,index)=>total+(Number(value||0)!==Number(sumula?.teams?.[1]?.scores?.[index]||0)?1:0),0);
+  const trucoMatchScore=sumula=>`${countWins(sumula?.teams?.[0]?.scores,sumula?.teams?.[1]?.scores)} × ${countWins(sumula?.teams?.[1]?.scores,sumula?.teams?.[0]?.scores)}`;
+  const trucoMatchStatus=sumula=>Math.max(countWins(sumula?.teams?.[0]?.scores,sumula?.teams?.[1]?.scores),countWins(sumula?.teams?.[1]?.scores,sumula?.teams?.[0]?.scores))>=2?'FINALIZADO':'EM ANDAMENTO';
+  const syncTrucoOutcome=()=>{if(!['truco-amostra','truco-cego'].includes(sumulaDraft.modalidadeId))return;const teams=sumulaDraft.teams||[];if(teams.length<2)return;const limit=sumulaDraft.modalidadeId==='truco-cego'?24:30,firstTwoWins=[countWins(teams[0].scores?.slice(0,2),teams[1].scores?.slice(0,2)),countWins(teams[1].scores?.slice(0,2),teams[0].scores?.slice(0,2))],straightWinner=firstTwoWins.findIndex(value=>value===2);if(straightWinner>=0){teams[straightWinner].scores[2]=limit;teams[straightWinner===0?1:0].scores[2]=0;sumulaDraft.resultado.terceiraAutomatica=true;}else if(sumulaDraft.resultado.terceiraAutomatica){teams[0].scores[2]=0;teams[1].scores[2]=0;sumulaDraft.resultado.terceiraAutomatica=false;}const wins=[countWins(teams[0].scores,teams[1].scores),countWins(teams[1].scores,teams[0].scores)];if(Math.max(...wins)<2){['vencedor','perdedor'].forEach(key=>Object.assign(sumulaDraft.resultado[key],{nome:'',partidas:0,vitoria:0,tentos:0}));return;}const winnerIndex=wins[0]>=2?0:1,loserIndex=winnerIndex===0?1:0;Object.assign(sumulaDraft.resultado.vencedor,{nome:trucoTeamLabel(teams[winnerIndex]),partidas:wins[winnerIndex],vitoria:1,tentos:sumScores(teams[winnerIndex].scores)});Object.assign(sumulaDraft.resultado.perdedor,{nome:trucoTeamLabel(teams[loserIndex]),partidas:wins[loserIndex],vitoria:0,tentos:sumScores(teams[loserIndex].scores)});};
+  const bochaCampeiraScore=team=>(team?.placar||[]).filter(Boolean).length;
+  const syncBochaCampeiraScore=team=>{team.placarFinal=bochaCampeiraScore(team);};
+  const analyzeSumula=sumula=>{const alertas=[];const teams=sumula.teams||[];const statusBase=sumula.status==='CANCELADO'?'CANCELADO':null;if(sumula.modalidadeId==='tava'){teams[0]?.athletes?.forEach((athlete,index)=>{const scores=numericScores(athlete.scores);if(scores.length!==10)alertas.push(`Tava: atleta ${index+1} está com quantidade diferente de 10 tiros.`);scores.forEach(score=>{if(!validTavaValues.has(score))alertas.push(`Tava: valor ${score} fora da tabela 2, 1, 0, -1, -2.`);});});if((teams[0]?.athletes||[]).filter(a=>a.nome).length<3)alertas.push('Tava: menos de 3 atletas; manter válido apenas com alerta para ranking coletivo.');}
+    if(sumula.modalidadeId==='tetarfe'){teams[0]?.athletes?.forEach((athlete,index)=>{(athlete.games||[]).forEach(game=>{const table=validTetarfe[game.nome]||new Set();numericScores(game.scores).forEach(score=>{if(!table.has(score))alertas.push(`Tetarfe: ${game.nome} do atleta ${index+1} tem valor ${score} fora da tabela homologada.`);});});});if((teams[0]?.athletes||[]).filter(a=>a.nome).length<3)alertas.push('Tetarfe: menos de 3 atletas; total coletivo exige os 3 melhores resultados.');}
+    if(sumula.modalidadeId==='bocha-48'){teams.forEach((team,teamIndex)=>team.athletes?.slice(0,2).forEach((athlete,athleteIndex)=>numericScores(athlete.scores).forEach(score=>{if(score<0||score>32||score%2!==0)alertas.push(`Bocha 48: equipe ${teamIndex+1}, atleta ${athleteIndex+1}, valor ${score} incomum; use soma par entre 0 e 32.`);})));if(teams.length===2&&teamTotal(teams[0])===teamTotal(teams[1]))alertas.push('Bocha 48: empate detectado; registrar desempate/decisão manual antes do ranking final.');}
+    if(sumula.modalidadeId==='bocha-campeira'){const placares=teams.map(team=>Number(team.placarFinal||0));if(placares.some(score=>score<0||score>12))alertas.push('Bocha Campeira: placar final fora do intervalo esperado de 0 a 12.');if(placares.length===2&&placares[0]===placares[1])alertas.push('Bocha Campeira: empate no placar final; informar decisão manual.');}
+    if(sumula.modalidadeId==='truco-amostra'||sumula.modalidadeId==='truco-cego'){const limite=sumula.modalidadeId==='truco-cego'?24:30;teams.forEach((team,teamIndex)=>numericScores(team.scores).forEach(score=>{if(score<0||score>limite)alertas.push(`${sumula.modalidadeId==='truco-cego'?'Truco Cego':'Truco de Amostra'}: equipe ${teamIndex+1} tem partida com ${score} tentos; limite local ${limite}.`);}));const winsA=countWins(teams[0]?.scores,teams[1]?.scores),winsB=countWins(teams[1]?.scores,teams[0]?.scores);if(Math.max(winsA,winsB)<2)alertas.push('Truco: nenhum trio alcançou 2 vitórias; salvar com alerta até revisão.');}
+    return{status:statusBase|| (alertas.length?'COM_ALERTA':'VALIDO'),alertas,totais:{equipes:teams.map(team=>({piqueteId:team.piqueteId,piqueteNome:team.piqueteNome,total:sumula.modalidadeId==='tava'||sumula.modalidadeId==='tetarfe'?topThreeTotal(team):teamTotal(team),totalBruto:teamTotal(team)}))}};
+  };
+  const sumulaAlerts=computed(()=>analyzeSumula(sumulaDraft).alertas);
+  const modalityName=id=>modalidades.find(m=>m.id===id)?.nome||id;
+  const formatDate=value=>value?new Date(value).toLocaleDateString('pt-BR'):'Sem data';
+  const sumulaListRows=computed(()=>sumulas.value.map(sumula=>{const analysis=analyzeSumula(sumula),teams=sumula.teams||[],totals=analysis.totais?.equipes||[];return{id:sumula.id,raw:sumula,data:formatDate(sumula.identificacao?.data||sumula.criadoEm),modalidade:modalityName(sumula.modalidadeId),participantes:teams.map(team=>team.nomeComposicao||team.piqueteNome||'Equipe sem nome').join(' x ')||'Sem composição',total:totals.map(team=>team.total).join(' x ')||0,status:sumula.status||analysis.status,alertas:(sumula.alertas||analysis.alertas||[]).length};}));
+  const rankingDetailSumulas=computed(()=>sumulaListRows.value.filter(item=>rankingContext.value?.sumulaIds?.includes(item.id)));
+  const openRankingDetails=row=>{rankingContext.value=row;Object.assign(overlay,{open:true,kind:'rankingDetails',mode:'drawer',title:`Súmulas de ${row.entidade}`,subtitle:`${selectedRankingModalityName.value} · escolha somente o lançamento que deseja excluir.`});};
+  const askDeleteSumula=sumula=>Object.assign(confirm,{open:true,row:sumula,type:'sumula'});
+  const editSumula=sumula=>{const modality=modalidades.find(m=>m.id===sumula.modalidadeId);if(!modality)return showToast('Súmula indisponível','Modalidade não encontrada para edição.');activeModality.value=modality;Object.keys(sumulaDraft).forEach(key=>delete sumulaDraft[key]);Object.assign(sumulaDraft,JSON.parse(JSON.stringify(sumula)));Object.assign(overlay,{open:true,kind:'sumulaForm',editingId:sumula.id,title:`Editar súmula de ${modality.nome}`,subtitle:'Edição preserva o histórico local e recalcula status/rankings ao salvar.',mode:'full'});};
+  const toggleSumulaStatus=async sumula=>{const index=sumulas.value.findIndex(item=>item.id===sumula.id);if(index<0)return;let nextStatus=sumulas.value[index].status==='CANCELADO'?'COM_ALERTA':'CANCELADO';if(nextStatus==='COM_ALERTA')nextStatus=analyzeSumula({...sumulas.value[index],status:''}).status;try{const remote=await gasCall('setSumulaStatus',sumula.id,nextStatus);sumulas.value[index]=remote?.data||{...sumulas.value[index],status:nextStatus,canceladoEm:nextStatus==='CANCELADO'?new Date().toISOString():'',atualizadoEm:new Date().toISOString()};refreshModalityCounters();persist();showToast(nextStatus==='CANCELADO'?'Súmula cancelada':'Súmula restaurada','Rankings foram recalculados.');}catch(error){showToast('Não foi possível alterar',error.message);}};
+  const addRankingRow=(rows,row)=>rows.push({id:`${row.modalidade}-${row.categoria}-${row.nome}-${rows.length}`,...row,pontos:Number(row.pontos||0),vitorias:Number(row.vitorias||0),partidasDisputadas:Number(row.partidasDisputadas||1),saldo:Number(row.saldo||0),status:row.status||'VALIDO'});
+  const rankingSourceRows=computed(()=>{const rows=[];sumulas.value.filter(s=>s.status!=='CANCELADO').forEach(sumula=>{const start=rows.length,teams=sumula.teams||[],status=sumula.status||analyzeSumula(sumula).status,modalidade=modalityName(sumula.modalidadeId);if(sumula.modalidadeId==='tava'||sumula.modalidadeId==='tetarfe'){teams[0]?.athletes?.forEach(athlete=>athlete.nome&&addRankingRow(rows,{modalidade,categoria:'Individual',nome:athlete.nome,entidade:teams[0].piqueteNome,pontos:athleteTotal(athlete),vitorias:0,status}));addRankingRow(rows,{modalidade,categoria:'Equipe',nome:teams[0]?.piqueteNome||'Equipe sem nome',entidade:teams[0]?.piqueteNome||'',pontos:topThreeTotal(teams[0]||{athletes:[]}),vitorias:0,status});}if(sumula.modalidadeId==='bocha-48'){teams.forEach((team,index)=>{const total=teamTotal(team);addRankingRow(rows,{modalidade,categoria:'Dupla',nome:team.nomeComposicao||team.piqueteNome||`Dupla ${index+1}`,entidade:team.piqueteNome,pontos:total,vitorias:0,status});team.athletes?.slice(0,2).forEach(athlete=>athlete.nome&&addRankingRow(rows,{modalidade,categoria:'Individual',nome:athlete.nome,entidade:team.piqueteNome,pontos:athleteTotal(athlete),vitorias:0,status}));});}if(sumula.modalidadeId==='bocha-campeira'){const placares=teams.map(team=>Number(team.placarFinal||bochaCampeiraScore(team)));teams.forEach((team,index)=>{const other=placares[index===0?1:0]||0;addRankingRow(rows,{modalidade,categoria:'Equipe',nome:team.piqueteNome||`Equipe ${index+1}`,entidade:team.piqueteNome,pontos:placares[index],vitorias:placares[index]>other?1:0,saldo:placares[index]-other,status});});}if(sumula.modalidadeId==='truco-amostra'||sumula.modalidadeId==='truco-cego'){const wins=[countWins(teams[0]?.scores,teams[1]?.scores),countWins(teams[1]?.scores,teams[0]?.scores)],tentos=teams.map(team=>sumScores(team.scores||[])),played=trucoPlayedGames(sumula);teams.forEach((team,index)=>addRankingRow(rows,{modalidade,categoria:'Trio',nome:team.nomeComposicao||team.piqueteNome||`Trio ${index+1}`,entidade:team.piqueteNome,pontos:tentos[index],vitorias:wins[index]>=2?1:0,partidasDisputadas:played,saldo:tentos[index]-(tentos[index===0?1:0]||0),status}));}rows.slice(start).forEach(row=>row.sumulaId=sumula.id);});return rows;});
+  const selectedRankingModalityName=computed(()=>modalityName(selectedRankingModality.value));
+  const rankingRuleDescription=computed(()=>['tava','tetarfe','bocha-48'].includes(selectedRankingModality.value)?'Classificação por maior pontuação; a primeira colocada recebe a vitória da modalidade.':'Classificação por vitórias, partidas disputadas e tentos/pontos.');
+  const buildModalityRanking=modalityId=>{const modality=modalidades.find(item=>item.id===modalityId),collective=['Equipe','Dupla','Trio'],grouped={},source=rankingSourceRows.value.filter(row=>row.modalidade===modality?.nome&&collective.includes(row.categoria)),modalityStatus=source.some(row=>row.status==='COM_ALERTA')?'EM ANDAMENTO':'FINALIZADO';source.forEach(row=>{const key=row.entidade||row.nome,entity=grouped[key]||={id:`${modalityId}-${key}`,entidade:key,pontos:0,vitorias:0,partidasDisputadas:0,saldo:0,sumulaIds:new Set()};entity.pontos+=row.pontos;entity.vitorias+=row.vitorias;entity.partidasDisputadas+=row.partidasDisputadas;entity.saldo+=row.saldo;if(row.sumulaId)entity.sumulaIds.add(row.sumulaId);});const scoreMode=['tava','tetarfe','bocha-48'].includes(modalityId),rows=Object.values(grouped).sort((a,b)=>scoreMode?b.pontos-a.pontos||a.entidade.localeCompare(b.entidade,'pt-BR'):b.vitorias-a.vitorias||b.pontos-a.pontos||b.saldo-a.saldo||a.entidade.localeCompare(b.entidade,'pt-BR'));let previous=null,position=0;return rows.map((row,index)=>{const tied=previous&&(scoreMode?row.pontos===previous.pontos:row.vitorias===previous.vitorias&&row.pontos===previous.pontos&&row.saldo===previous.saldo);if(!tied)position=index+1;previous=row;if(scoreMode&&position===1)row.vitorias=1;return{...row,sumulaIds:[...row.sumulaIds],posicao:position,status:modalityStatus};});};
+  const rankingModalidadeRows=computed(()=>buildModalityRanking(selectedRankingModality.value));
+  const rankingGeralRows=computed(()=>{const entities={};modalidades.forEach(modality=>buildModalityRanking(modality.id).forEach(row=>{const points=row.posicao<=8?11-row.posicao:2,entity=entities[row.entidade]||={entidade:row.entidade,pontosGerais:0,primeiros:0,segundos:0,terceiros:0,modalidades:0};entity.pontosGerais+=points;entity.modalidades++;if(row.posicao===1)entity.primeiros++;if(row.posicao===2)entity.segundos++;if(row.posicao===3)entity.terceiros++;}));return Object.values(entities).sort((a,b)=>b.pontosGerais-a.pontosGerais||b.primeiros-a.primeiros||b.segundos-a.segundos||b.terceiros-a.terceiros||b.modalidades-a.modalidades||a.entidade.localeCompare(b.entidade,'pt-BR'));});
+  const saveSumula=async()=>{overlay.busy=true;if(['truco-amostra','truco-cego'].includes(sumulaDraft.modalidadeId))syncTrucoOutcome();if(sumulaDraft.modalidadeId==='bocha-campeira')sumulaDraft.teams.forEach(syncBochaCampeiraScore);const index=sumulas.value.findIndex(s=>s.id===sumulaDraft.id);const payload=JSON.parse(JSON.stringify(sumulaDraft));Object.assign(payload,analyzeSumula(payload),{atualizadoEm:new Date().toISOString()});try{const remote=await gasCall('saveSumula',payload);const saved=remote?.data||payload;index>=0?sumulas.value.splice(index,1,saved):sumulas.value.unshift(saved);refreshModalityCounters();persist();overlay.open=false;showToast(saved.status==='COM_ALERTA'?'Súmula salva com alerta':'Súmula válida salva',`O lançamento de ${activeModality.value.nome} foi armazenado.`);}catch(error){showToast('Não foi possível salvar',error.message);}finally{overlay.busy=false;}};
+  const printSumula=()=>{const portrait=['tetarfe','truco-amostra','truco-cego'].includes(activeModality.value.id),style=document.createElement('style');style.id='sae-print-page';style.textContent=`@page{size:A4 ${portrait?'portrait':'landscape'};margin:${portrait?'0':'5mm'}}`;document.head.appendChild(style);const cleanup=()=>{style.remove();window.removeEventListener('afterprint',cleanup);};window.addEventListener('afterprint',cleanup);window.print();setTimeout(cleanup,1500);};
+  const initials=nome=>nome.split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
+  const editItem=row=>openRegistration(row);
+  const askRemove=(row,type)=>Object.assign(confirm,{open:true,row,type});const removeConfirmed=async()=>{const row=confirm.row,type=confirm.type;try{if(type==='sumula'){await gasCall('deleteSumula',row.id);sumulas.value=sumulas.value.filter(item=>item.id!==row.id);if(rankingContext.value)rankingContext.value={...rankingContext.value,sumulaIds:rankingContext.value.sumulaIds.filter(id=>id!==row.id)};refreshModalityCounters();persist();confirm.open=false;showToast('Súmula excluída','Somente o lançamento selecionado foi removido e os rankings recalculados.');return;}if(type==='piquetes')await gasCall('cancelRegistration',row.id);const target=type==='piquetes'?piquetes:inscricoes;target.value=target.value.filter(x=>x.id!==row.id);persist();confirm.open=false;showToast('Registro cancelado','A lista e as inscrições vinculadas foram atualizadas.');}catch(error){showToast('Não foi possível excluir',error.message);}};
+  const loadingDemo=()=>{isLoading.value=true;setTimeout(()=>{isLoading.value=false;showToast('Painel atualizado','Os indicadores estão sincronizados com os dados locais.');},900);};
+  const quickActions=computed(()=>[{label:'Nova inscrição',icon:'fa-solid fa-clipboard-check',tint:'bg-emerald-400/10 text-emerald-400',run:()=>openRegistration()},...modalidades.map(modality=>({label:`Súmula de ${modality.nome}`,icon:modality.icon,tint:modality.tint,run:()=>openSumula(modality)})),{label:'Ranking por modalidade',icon:'fa-solid fa-medal',tint:'bg-amber-400/10 text-amber-300',run:()=>navigate('rankingModalidade')},{label:'Ranking geral',icon:'fa-solid fa-ranking-star',tint:'bg-blue-400/10 text-blue-400',run:()=>navigate('rankingGeral')}]);
+  const keyHandler=e=>{if(e.key==='Escape'){if(confirm.open)confirm.open=false;else closeOverlay();}};onMounted(()=>{window.addEventListener('keydown',keyHandler);hydrateFromBackend();});onBeforeUnmount(()=>window.removeEventListener('keydown',keyHandler));
+  return{currentView,sidebarOpen,isLoading,pageTitle:computed(()=>pageTitles[currentView.value]),navigation,metricCards,modalidades,piquetes,overlay,wizardStep,registration,filledAthletes,registrationStepTitle,sumulaStep,activeModality,sumulaTeams,selectedTeams,sumulaStepTitle,sumulaDraft,sumulaAlerts,sumulaListRows,rankingDetailSumulas,rankingModalidadeRows,rankingGeralRows,confirm,toast,quickActions,selectedRankingModality,selectedRankingModalityName,rankingRuleDescription,navigate,openRanking,openRankingDetails,askDeleteSumula,openRegistration,openSumula,closeOverlay,nextRegistrationStep,addAthlete,removeAthlete,athleteList,availablePiquetes,eligibleAthleteNames,finishSumulaSetup,editSumula,toggleSumulaStatus,backToComposition,sumScores,athleteTotal,teamTotal,topThreeTotal,trucoAthleteNames,trucoMatchScore,trucoMatchStatus,syncTrucoOutcome,bochaCampeiraScore,syncBochaCampeiraScore,saveSumula,printSumula,initials,editItem,askRemove,removeConfirmed,showToast,loadingDemo};
+}}).mount('#app');
+</script>
 </body>
 </html>
