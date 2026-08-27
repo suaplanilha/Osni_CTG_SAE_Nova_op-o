@@ -32,8 +32,29 @@ function getBootstrapData() {
     return {
       eventoId: getCurrentEventId_(),
       entidades: listRegistrations_(),
-      sumulas: listSumulas_()
+      sumulas: listSumulas_(),
+      homologacoes: { bocha48: getConfigBoolean_('HOMOLOGACAO_BOCHA_48') }
     };
+  });
+}
+
+/** Homologação explícita impede que resultados parciais alterem o ranking geral. */
+function setModalityHomologation(modalityId, homologated) {
+  return executeApi_(function () {
+    if (modalityId !== 'bocha-48') throw new Error('Modalidade não habilitada para homologação manual.');
+    return withLock_(function () {
+      initializeDatabase_();
+      const key = 'HOMOLOGACAO_BOCHA_48';
+      const sheet = getSpreadsheet_().getSheetByName('CONFIG');
+      const rows = readObjects_('CONFIG');
+      const index = rows.findIndex(function (row) { return row.chave === key; });
+      const now = new Date().toISOString();
+      const values = [key, homologated ? 'true' : 'false', now];
+      if (index >= 0) sheet.getRange(index + 2, 1, 1, values.length).setValues([values]);
+      else sheet.appendRow(values);
+      appendLog_('CONFIG', key, homologated ? 'HOMOLOGAR' : 'REMOVER_HOMOLOGACAO', { modalidadeId: modalityId });
+      return { modalidadeId: modalityId, homologado: Boolean(homologated), atualizadoEm: now };
+    });
   });
 }
 
@@ -210,6 +231,11 @@ function getCurrentEventId_() {
     properties.setProperty('SAE_EVENT_ID', id);
   }
   return id;
+}
+
+function getConfigBoolean_(key) {
+  const row = readObjects_('CONFIG').find(function (item) { return item.chave === key; });
+  return row ? String(row.valor).toLowerCase() === 'true' : false;
 }
 
 function listRegistrations_() {
