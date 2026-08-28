@@ -17,13 +17,13 @@ Não iremos usar o clasp neste projeto.
 
 1. Gestão e Inscrição de Equipes / Piquetes
 
-Formulário Completo: Cadastro da entidade/piquete, nome do Capataz responsável e lista de até 5 atletas titulares e reservas.
+Formulário Completo: Cadastro da entidade/piquete, capataz, contato e quantidade dinâmica de atletas titulares e reservas. Cada atleta pode ser vinculado às modalidades que disputará.
 
-Persistência de Dados: Armazenamento automático via localStorage no navegador.
+Persistência de Dados: Integração com Google Apps Script e Google Sheets, mantendo localStorage como apoio para execução local do frontend.
 
 Proteção contra Duplo Clique: Trava no botão de envio para evitar registros duplicados.
 
-Tabela Dinâmica: Visualização instantânea das equipes cadastradas com opção de remoção individual.
+Tabela Dinâmica: Visualização de entidade, capataz e contato, com edição e cancelamento lógico.
 
 2. Súmulas Oficiais das Modalidades (6 Oficializadas)
 
@@ -39,7 +39,7 @@ Totalização automática por atleta e Total Geral da Equipe.
 
 Bocha Campeira (Modalidade Trio)
 
-Marcação de pontos partida a partida (escala de 1 a 12 pontos).
+Marcação por 12 checkboxes com placar final automático e composição de 3 titulares mais 1 reserva.
 
 Identificação de cores de bochas por equipe.
 
@@ -67,7 +67,7 @@ Truco de Amostra (Modalidade Trio)
 
 Registro de pontuações de até 3 partidas por confronto.
 
-Soma de tentos marcados automatizada.
+Soma de tentos, placar e encerramento automatizados; duas vitórias seguidas geram a terceira partida em 30 × 0.
 
 Bloco de encerramento com dados do Trio Vencedor e Trio Perdedor.
 
@@ -75,7 +75,7 @@ Truco Cego (Modalidade Trio)
 
 Estrutura análoga à súmula de Truco de Amostra adaptada para as regras do Truco Cego.
 
-Controles de tentos por rodada e assinaturas dos capatazes e árbitros.
+Controles de até 24 tentos por partida; duas vitórias seguidas geram a terceira partida em 24 × 0.
 
 Bocha 48 (Modalidade Dupla)
 
@@ -83,7 +83,7 @@ Controle de arremessos divididos em duas séries (8 jogadas por atleta).
 
 Legenda guia de pontuações (Frente = 2, Esquerda = 4, Direita = 6, Atrás = 8, Bolim = 12).
 
-Cálculo automático por atleta, por dupla e comparativo do confronto.
+Cálculo automático por atleta e por dupla, com classificação da modalidade pela pontuação final.
 
 🛠️ Recursos de Interface e Usabilidade (UI/UX)
 
@@ -105,10 +105,8 @@ Tailwind CSS: Estilização moderna e utilitária via CDN.
 
 FontAwesome 6: Ícone temáticos para todas as modalidades e ações do sistema.
 
-Vanilla JavaScript (ES6+): Lógica sem dependências externas, responsável pelo cálculo matemático de pontos, manipulação do DOM e controle do localStorage.
+Vue 3 via CDN + JavaScript ES6+: Estado reativo, formulários, cálculos, integração `google.script.run` e persistência local de apoio, sem bundler.
 
-Proximos passos desenvolver regras de negocios. 
-criar tabelas/entidades
-Melhoriar <style>
-corrigir erros
-desenvolver backend e contratos e regras dos negocios e demais features necessarias. 
+Backend inicial implementado com contratos padronizados, UUID, datas ISO, locks, cancelamento lógico e abas separadas para entidades, atletas, vínculos de modalidades, súmulas e logs.
+
+Próximos passos: publicar em ambiente GAS de homologação, executar testes com a planilha real e concluir os ajustes finais de UX e regras de negócio.
